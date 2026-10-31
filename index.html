@@ -9,200 +9,187 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400&display=swap');
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin:0; padding:0; box-sizing:border-box; }
 
 body {
-    background: #020207;
-    color: white;
-    font-family: 'Montserrat', sans-serif;
-    overflow: hidden;
-    height: 100vh;
+    background:#02010a;
+    color:white;
+    font-family:Montserrat,sans-serif;
+    overflow:hidden;
+    height:100vh;
 }
 
 canvas {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
 }
 
-#background {
-    z-index: 0;
-}
-
-#visualizer {
-    z-index: 1;
-}
+#background { z-index:0; }
+#visualizer { z-index:1; }
 
 .vignette {
-    position: fixed;
-    inset: 0;
-    z-index: 2;
-    pointer-events: none;
-    background: radial-gradient(circle, transparent 25%, rgba(0,0,0,.45) 100%);
+    position:fixed;
+    inset:0;
+    z-index:2;
+    pointer-events:none;
+    background:radial-gradient(ellipse at center,transparent 20%,rgba(0,0,0,.48) 100%);
 }
 
 .intro {
-    position: fixed;
-    inset: 0;
-    z-index: 5;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: #020207;
-    transition: opacity 2s ease;
+    position:fixed;
+    inset:0;
+    z-index:5;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    background:#02010a;
+    transition:opacity 2s;
 }
 
 .intro h1 {
-    font-size: clamp(35px, 7vw, 76px);
-    font-weight: 200;
-    letter-spacing: .42em;
-    padding-left: .42em;
-    opacity: 0;
-    animation: reveal 4s ease forwards;
+    font-size:clamp(35px,7vw,76px);
+    font-weight:200;
+    letter-spacing:.42em;
+    padding-left:.42em;
+    opacity:0;
+    animation:reveal 4s ease forwards;
 }
 
 .intro p {
-    font-size: 10px;
-    letter-spacing: .45em;
-    color: #777b94;
-    margin-top: 22px;
-    opacity: 0;
-    animation: reveal 3s ease 1.5s forwards;
+    font-size:10px;
+    letter-spacing:.45em;
+    color:#9993bd;
+    margin-top:22px;
+    opacity:0;
+    animation:reveal 3s ease 1.5s forwards;
 }
 
 .start {
-    margin-top: 65px;
-    background: transparent;
-    border: 1px solid rgba(255,255,255,.35);
-    color: white;
-    padding: 15px 34px;
-    font-family: inherit;
-    font-size: 10px;
-    letter-spacing: .35em;
-    cursor: pointer;
-    transition: .4s;
-    opacity: 0;
-    animation: reveal 2s ease 3s forwards;
+    margin-top:65px;
+    background:transparent;
+    border:1px solid rgba(255,255,255,.4);
+    color:white;
+    padding:16px 36px;
+    font-family:inherit;
+    font-size:10px;
+    letter-spacing:.35em;
+    cursor:pointer;
+    transition:.4s;
+    opacity:0;
+    animation:reveal 2s ease 3s forwards;
 }
 
 .start:hover {
-    background: white;
-    color: black;
-    box-shadow: 0 0 35px rgba(255,255,255,.3);
+    background:white;
+    color:black;
+    box-shadow:0 0 45px rgba(150,120,255,.6);
 }
 
-@keyframes reveal {
-    to { opacity: 1; }
-}
+@keyframes reveal { to { opacity:1; } }
 
 .hud {
-    position: fixed;
-    z-index: 3;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 3s;
+    position:fixed;
+    z-index:3;
+    inset:0;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity 3s;
 }
 
-.hud.visible {
-    opacity: 1;
-}
+.hud.visible { opacity:1; }
 
 .logo {
-    position: absolute;
-    top: 35px;
-    left: 42px;
-    font-size: 11px;
-    letter-spacing: .4em;
-    font-weight: 300;
-}
-
-.track {
-    position: absolute;
-    bottom: 42px;
-    left: 42px;
-}
-
-.track-name {
-    font-size: 11px;
-    letter-spacing: .25em;
-    margin-bottom: 9px;
-}
-
-.track-sub {
-    color: #777b94;
-    font-size: 9px;
-    letter-spacing: .2em;
+    position:absolute;
+    top:35px;
+    left:42px;
+    font-size:11px;
+    letter-spacing:.4em;
 }
 
 .phase {
-    position: absolute;
-    top: 38px;
-    right: 42px;
-    font-size: 9px;
-    color: #8d91a9;
-    letter-spacing: .3em;
+    position:absolute;
+    top:38px;
+    right:42px;
+    font-size:9px;
+    color:#aaa3c8;
+    letter-spacing:.3em;
+}
+
+.track {
+    position:absolute;
+    bottom:42px;
+    left:42px;
+}
+
+.track-name {
+    font-size:11px;
+    letter-spacing:.25em;
+    margin-bottom:9px;
+}
+
+.track-sub {
+    color:#9993bd;
+    font-size:9px;
+    letter-spacing:.2em;
 }
 
 .controls {
-    position: absolute;
-    bottom: 38px;
-    right: 42px;
-    display: flex;
-    gap: 18px;
-    pointer-events: auto;
+    position:absolute;
+    bottom:38px;
+    right:42px;
+    display:flex;
+    gap:18px;
+    pointer-events:auto;
 }
 
 .controls button {
-    color: rgba(255,255,255,.7);
-    background: transparent;
-    border: none;
-    font-size: 17px;
-    cursor: pointer;
-    transition: .3s;
+    color:rgba(255,255,255,.8);
+    background:transparent;
+    border:none;
+    font-size:19px;
+    cursor:pointer;
+    transition:.3s;
 }
 
 .controls button:hover {
-    color: white;
-    text-shadow: 0 0 15px white;
+    color:white;
+    text-shadow:0 0 20px white;
 }
 
 .progress {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 1px;
-    background: rgba(255,255,255,.15);
-    width: 100%;
+    position:absolute;
+    bottom:0;
+    left:0;
+    height:1px;
+    background:rgba(255,255,255,.15);
+    width:100%;
 }
 
 .progress-fill {
-    height: 100%;
-    width: 0%;
-    background: rgba(255,255,255,.7);
+    height:100%;
+    width:0%;
+    background:white;
+    box-shadow:0 0 12px white;
 }
 
 .time {
-    position: absolute;
-    bottom: 72px;
-    right: 42px;
-    color: #777b94;
-    font-size: 9px;
-    letter-spacing: .15em;
+    position:absolute;
+    bottom:72px;
+    right:42px;
+    color:#aaa3c8;
+    font-size:9px;
+    letter-spacing:.15em;
 }
 
 @media(max-width:600px) {
-    .logo { left: 20px; top: 22px; }
-    .phase { right: 20px; top: 25px; }
-    .track { left: 20px; bottom: 65px; }
-    .controls { right: 20px; bottom: 22px; }
-    .time { right: 20px; bottom: 53px; }
+    .logo { left:20px; top:22px; }
+    .phase { right:20px; top:25px; }
+    .track { left:20px; bottom:65px; }
+    .controls { right:20px; bottom:22px; }
+    .time { right:20px; bottom:53px; }
 }
 </style>
 </head>
@@ -257,41 +244,55 @@ const hud = document.getElementById("hud");
 
 let width, height, cx, cy;
 let started = false;
-let muted = false;
 let paused = false;
+let muted = false;
 let animationTime = 0;
-let startTime = 0;
-let analyser, audioContext, source;
-let frequencyData;
-let particles = [];
+let analyser, audioContext, source, frequencyData;
+
 let stars = [];
+let particles = [];
+let streams = [];
+let nebulae = [];
+
+const TAU = Math.PI * 2;
+
+function random(min,max) {
+    return Math.random()*(max-min)+min;
+}
 
 function resize() {
-    width = bg.width = canvas.width = window.innerWidth;
-    height = bg.height = canvas.height = window.innerHeight;
-    cx = width / 2;
-    cy = height / 2;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    width = window.innerWidth;
+    height = window.innerHeight;
+    cx = width/2;
+    cy = height/2;
+
+    for(const c of [bg,canvas]) {
+        c.width = width*dpr;
+        c.height = height*dpr;
+        c.style.width = width+"px";
+        c.style.height = height+"px";
+        c.getContext("2d").setTransform(dpr,0,0,dpr,0,0);
+    }
 
     createStars();
     createParticles();
+    createStreams();
+    createNebulae();
 }
 
-window.addEventListener("resize", resize);
-
-function random(min, max) {
-    return Math.random() * (max - min) + min;
-}
+window.addEventListener("resize",resize);
 
 function createStars() {
     stars = [];
-
-    for (let i = 0; i < 350; i++) {
+    for(let i=0;i<500;i++) {
         stars.push({
-            x: Math.random() * width,
-            y: Math.random() * height,
-            size: random(.3, 1.5),
-            alpha: random(.1, .8),
-            speed: random(.001, .008)
+            x:random(0,width),
+            y:random(0,height),
+            size:random(.3,1.8),
+            alpha:random(.15,.9),
+            speed:random(.2,1.5)
         });
     }
 }
@@ -299,220 +300,59 @@ function createStars() {
 function createParticles() {
     particles = [];
 
-    for (let i = 0; i < 240; i++) {
+    for(let i=0;i<650;i++) {
         particles.push({
-            angle: random(0, Math.PI * 2),
-            radius: random(30, Math.max(width, height) * .65),
-            speed: random(.0002, .001),
-            size: random(.5, 2),
-            offset: random(0, 100),
-            alpha: random(.15, .8)
+            angle:random(0,TAU),
+            radius:random(30,Math.max(width,height)*.7),
+            speed:random(.0004,.0025),
+            size:random(.5,2.6),
+            alpha:random(.2,.9),
+            wave:random(0,TAU),
+            hue:random(0,360)
+        });
+    }
+}
+
+function createStreams() {
+    streams = [];
+
+    for(let i=0;i<12;i++) {
+        streams.push({
+            angle:random(0,TAU),
+            radius:random(100,Math.max(width,height)*.5),
+            speed:random(.001,.003),
+            length:random(100,280),
+            width:random(1,3),
+            hue:random(180,330)
+        });
+    }
+}
+
+function createNebulae() {
+    nebulae = [];
+
+    for(let i=0;i<9;i++) {
+        nebulae.push({
+            x:random(0,width),
+            y:random(0,height),
+            radius:random(100,280),
+            hue:random(180,330),
+            drift:random(.15,.6),
+            phase:random(0,TAU)
         });
     }
 }
 
 resize();
 
-function getAudioLevel() {
-    if (!analyser || !frequencyData || muted) return 0;
-
-    analyser.getByteFrequencyData(frequencyData);
-
-    let total = 0;
-    for (let i = 0; i < frequencyData.length; i++) {
-        total += frequencyData[i];
-    }
-
-    return total / frequencyData.length / 255;
-}
-
-function getBass() {
-    if (!analyser || !frequencyData || muted) return 0;
-
-    analyser.getByteFrequencyData(frequencyData);
-
-    let total = 0;
-    for (let i = 0; i < 12; i++) {
-        total += frequencyData[i];
-    }
-
-    return total / 12 / 255;
-}
-
-function getTreble() {
-    if (!analyser || !frequencyData || muted) return 0;
-
-    analyser.getByteFrequencyData(frequencyData);
-
-    let total = 0;
-    for (let i = 25; i < 100; i++) {
-        total += frequencyData[i] || 0;
-    }
-
-    return total / 75 / 255;
-}
-
-// Automatic visual progression
-const phases = [
-    { time: 0, name: "I — AWAKENING", color: [70, 85, 155], intensity: .45 },
-    { time: 35, name: "II — ASCENSION", color: [90, 75, 180], intensity: .7 },
-    { time: 80, name: "III — INFINITY", color: [160, 105, 190], intensity: 1 },
-    { time: 135, name: "IV — BEYOND", color: [190, 145, 105], intensity: 1.3 },
-    { time: 190, name: "V — TRANSCENDENCE", color: [120, 160, 220], intensity: 1.5 },
-    { time: 250, name: "VI — ETERNITY", color: [210, 190, 155], intensity: .85 }
-];
-
-function getPhase(seconds) {
-    let selected = phases[0];
-
-    for (const p of phases) {
-        if (seconds >= p.time) selected = p;
-    }
-
-    return selected;
-}
-
-function drawStars() {
-    bctx.clearRect(0, 0, width, height);
-
-    for (const star of stars) {
-        const pulse = Math.sin(animationTime * star.speed * 60) * .25;
-
-        bctx.beginPath();
-        bctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-        bctx.fillStyle = `rgba(190,200,255,${Math.max(.05, star.alpha + pulse)})`;
-        bctx.fill();
-    }
-}
-
-function drawParticles(phase, level) {
-    const color = phase.color;
-
-    for (const p of particles) {
-        p.angle += p.speed * (1 + level * 4);
-
-        const wave = Math.sin(animationTime * .4 + p.offset) * 25;
-        const radius = p.radius + wave + level * 35;
-
-        const x = cx + Math.cos(p.angle) * radius;
-        const y = cy + Math.sin(p.angle) * radius * .62;
-
-        ctx.beginPath();
-        ctx.arc(x, y, p.size + level * 1.5, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},${p.alpha * phase.intensity})`;
-        ctx.fill();
-    }
-}
-
-function drawWaves(phase, level, bass) {
-    const color = phase.color;
-
-    for (let ring = 0; ring < 7; ring++) {
-        ctx.beginPath();
-
-        const baseRadius = 65 + ring * 39;
-        const rotation = animationTime * (.08 + ring * .006);
-
-        for (let i = 0; i <= 360; i += 2) {
-            const angle = i * Math.PI / 180;
-            const distortion =
-                Math.sin(angle * 5 + animationTime * 1.2 + ring) * (8 + bass * 32) +
-                Math.sin(angle * 9 - animationTime * .7) * (4 + level * 20);
-
-            const radius = baseRadius + distortion;
-            const x = cx + Math.cos(angle + rotation) * radius;
-            const y = cy + Math.sin(angle + rotation) * radius * .8;
-
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-        }
-
-        ctx.closePath();
-
-        ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},${.12 + level * .18})`;
-        ctx.lineWidth = ring === 0 ? 1.5 : .7;
-        ctx.shadowBlur = 18 + bass * 35;
-        ctx.shadowColor = `rgb(${color[0]},${color[1]},${color[2]})`;
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-    }
-}
-
-function drawCore(phase, level, bass) {
-    const color = phase.color;
-    const pulse = Math.sin(animationTime * 1.1) * 5 + bass * 45;
-
-    const radius = 20 + pulse;
-
-    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 5);
-    glow.addColorStop(0, `rgba(${color[0]},${color[1]},${color[2]},${.3 + level * .2})`);
-    glow.addColorStop(.3, `rgba(${color[0]},${color[1]},${color[2]},.08)`);
-    glow.addColorStop(1, "rgba(0,0,0,0)");
-
-    ctx.fillStyle = glow;
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius * 5, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},.16)`;
-    ctx.shadowBlur = 45 + bass * 60;
-    ctx.shadowColor = `rgb(${color[0]},${color[1]},${color[2]})`;
-    ctx.fill();
-    ctx.shadowBlur = 0;
-}
-
-function draw() {
-    requestAnimationFrame(draw);
-
-    if (!started || paused) return;
-
-    animationTime += .016;
-
-    const seconds = music.currentTime || 0;
-    const phase = getPhase(seconds);
-
-    const level = getAudioLevel();
-    const bass = getBass();
-    const treble = getTreble();
-
-    ctx.clearRect(0, 0, width, height);
-
-    // Subtle central atmospheric glow
-    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(width, height) * .65);
-    glow.addColorStop(0, `rgba(${phase.color.join(",")},${.035 + level * .06})`);
-    glow.addColorStop(1, "rgba(0,0,0,0)");
-
-    ctx.fillStyle = glow;
-    ctx.fillRect(0, 0, width, height);
-
-    drawCore(phase, level, bass);
-    drawWaves(phase, level, bass);
-    drawParticles(phase, level + treble * .3);
-
-    document.getElementById("phase").textContent = phase.name;
-
-    const current = Math.floor(music.currentTime);
-    const mins = Math.floor(current / 60);
-    const secs = current % 60;
-
-    document.getElementById("time").textContent =
-        `${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
-
-    if (music.duration) {
-        document.getElementById("progressFill").style.width =
-            `${(music.currentTime / music.duration) * 100}%`;
-    }
-}
-
+// Music analysis
 function initializeAudio() {
-    if (audioContext) return;
+    if(audioContext) return;
 
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
     analyser = audioContext.createAnalyser();
-    analyser.fftSize = 256;
-    analyser.smoothingTimeConstant = .88;
+    analyser.fftSize = 512;
+    analyser.smoothingTimeConstant = .78;
 
     source = audioContext.createMediaElementSource(music);
     source.connect(analyser);
@@ -521,69 +361,363 @@ function initializeAudio() {
     frequencyData = new Uint8Array(analyser.frequencyBinCount);
 }
 
+function readAudio() {
+    if(!analyser || muted) {
+        return {volume:0,bass:0,mid:0,treble:0};
+    }
+
+    analyser.getByteFrequencyData(frequencyData);
+
+    function average(start,end) {
+        let sum=0;
+        let count=0;
+
+        for(let i=start;i<Math.min(end,frequencyData.length);i++) {
+            sum+=frequencyData[i];
+            count++;
+        }
+
+        return count ? sum/count/255 : 0;
+    }
+
+    return {
+        volume:average(0,frequencyData.length),
+        bass:average(0,12),
+        mid:average(12,65),
+        treble:average(65,frequencyData.length)
+    };
+}
+
+// Automatic color and visual progression
+const phases = [
+    {time:0,name:"I — AWAKENING",colors:[220,260,190],power:.65},
+    {time:35,name:"II — ASCENSION",colors:[260,190,320],power:1},
+    {time:80,name:"III — INFINITY",colors:[290,330,200],power:1.25},
+    {time:135,name:"IV — TRANSCENDENCE",colors:[35,190,270],power:1.55},
+    {time:190,name:"V — BEYOND",colors:[190,220,300],power:1.7},
+    {time:250,name:"VI — ETERNITY",colors:[260,210,40],power:.85}
+];
+
+function getPhase(seconds) {
+    let result=phases[0];
+
+    for(const p of phases) {
+        if(seconds>=p.time) result=p;
+    }
+
+    return result;
+}
+
+function mix(a,b,t) {
+    return a+(b-a)*t;
+}
+
+function drawStars() {
+    bctx.clearRect(0,0,width,height);
+
+    for(const s of stars) {
+        const pulse=.5+Math.sin(animationTime*s.speed)*.5;
+
+        bctx.beginPath();
+        bctx.arc(s.x,s.y,s.size,0,TAU);
+        bctx.fillStyle=`rgba(190,200,255,${s.alpha*pulse})`;
+        bctx.fill();
+
+        s.x-=s.speed*.15;
+
+        if(s.x<0) s.x=width;
+    }
+}
+
+// Multiple enormous, flowing nebula clouds
+function drawNebulae(phase,audio) {
+    ctx.save();
+    ctx.globalCompositeOperation="screen";
+
+    for(let i=0;i<nebulae.length;i++) {
+        const n=nebulae[i];
+        const hue=phase.colors[i%3];
+        const drift=animationTime*n.drift;
+
+        const x=n.x+Math.sin(drift+n.phase)*85;
+        const y=n.y+Math.cos(drift*.8+n.phase)*75;
+        const radius=n.radius*(1+audio.bass*.65+Math.sin(animationTime*.5+n.phase)*.12);
+
+        const gradient=ctx.createRadialGradient(x,y,0,x,y,radius);
+        gradient.addColorStop(0,`hsla(${hue},100%,60%,${.09+audio.volume*.09})`);
+        gradient.addColorStop(.35,`hsla(${hue+35},100%,48%,.045)`);
+        gradient.addColorStop(1,"rgba(0,0,0,0)");
+
+        ctx.fillStyle=gradient;
+        ctx.fillRect(x-radius,y-radius,radius*2,radius*2);
+    }
+
+    ctx.restore();
+}
+
+// Swirling particle galaxy
+function drawParticles(phase,audio) {
+    ctx.save();
+    ctx.globalCompositeOperation="lighter";
+
+    const intensity=phase.power;
+
+    for(const p of particles) {
+        p.angle+=p.speed*(1+audio.volume*4)*intensity;
+
+        const radius=p.radius*(1+audio.bass*.2);
+        const distortion=Math.sin(animationTime*1.3+p.wave)*35;
+
+        const spiral=radius+distortion;
+        const x=cx+Math.cos(p.angle)*spiral;
+        const y=cy+Math.sin(p.angle)*spiral*.68;
+
+        const hue=phase.colors[Math.floor((p.hue/360)*3)%3]+p.hue*.15;
+        const size=p.size*(1+audio.treble*2);
+
+        ctx.beginPath();
+        ctx.arc(x,y,size,0,TAU);
+        ctx.fillStyle=`hsla(${hue},100%,70%,${p.alpha*.65})`;
+        ctx.shadowBlur=10+audio.volume*20;
+        ctx.shadowColor=`hsl(${hue},100%,65%)`;
+        ctx.fill();
+    }
+
+    ctx.restore();
+}
+
+// Curving light streams
+function drawStreams(phase,audio) {
+    ctx.save();
+    ctx.globalCompositeOperation="lighter";
+
+    for(const s of streams) {
+        s.angle+=s.speed*(1+audio.volume*3);
+
+        const x=cx+Math.cos(s.angle)*s.radius;
+        const y=cy+Math.sin(s.angle)*s.radius*.7;
+
+        const length=s.length*(1+audio.bass*1.8);
+
+        ctx.beginPath();
+        ctx.moveTo(x,y);
+        ctx.quadraticCurveTo(
+            cx+Math.cos(s.angle+1)*length*.6,
+            cy+Math.sin(s.angle+1)*length*.6,
+            cx+Math.cos(s.angle+.7)*length,
+            cy+Math.sin(s.angle+.7)*length
+        );
+
+        const hue=phase.colors[Math.floor(Math.random()*phase.colors.length)];
+
+        ctx.strokeStyle=`hsla(${hue},100%,70%,${.13+audio.volume*.25})`;
+        ctx.lineWidth=s.width+audio.bass*3;
+        ctx.shadowBlur=25;
+        ctx.shadowColor=`hsl(${hue},100%,65%)`;
+        ctx.stroke();
+    }
+
+    ctx.restore();
+}
+
+// Distorted, colorful expanding rings
+function drawRings(phase,audio) {
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.globalCompositeOperation="lighter";
+
+    const rotation=animationTime*.12;
+
+    for(let ring=0;ring<12;ring++) {
+        const base=45+ring*29+audio.bass*75;
+        const hue=phase.colors[ring%3];
+
+        ctx.beginPath();
+
+        for(let i=0;i<=360;i+=2) {
+            const angle=i*Math.PI/180;
+            const distortion=
+                Math.sin(angle*5+animationTime*1.5+ring)* (12+audio.bass*65)+
+                Math.sin(angle*11-animationTime*1.1)* (5+audio.mid*25);
+
+            const radius=base+distortion;
+
+            const x=Math.cos(angle+rotation)*radius;
+            const y=Math.sin(angle+rotation)*radius*.78;
+
+            if(i===0) ctx.moveTo(x,y);
+            else ctx.lineTo(x,y);
+        }
+
+        ctx.closePath();
+        ctx.strokeStyle=`hsla(${hue},100%,70%,${.13+audio.volume*.22})`;
+        ctx.lineWidth=ring<3?1.7:1;
+        ctx.shadowBlur=22+audio.bass*30;
+        ctx.shadowColor=`hsl(${hue},100%,65%)`;
+        ctx.stroke();
+    }
+
+    ctx.restore();
+}
+
+// Bright central energy
+function drawCore(phase,audio) {
+    const pulse=1+audio.bass*2.5+Math.sin(animationTime*2)*.12;
+    const radius=24*pulse;
+
+    const gradient=ctx.createRadialGradient(cx,cy,0,cx,cy,radius*9);
+    gradient.addColorStop(0,`hsla(${phase.colors[0]},100%,85%,${.4+audio.volume*.3})`);
+    gradient.addColorStop(.2,`hsla(${phase.colors[1]},100%,65%,.16)`);
+    gradient.addColorStop(.5,`hsla(${phase.colors[2]},100%,50%,.05)`);
+    gradient.addColorStop(1,"rgba(0,0,0,0)");
+
+    ctx.save();
+    ctx.globalCompositeOperation="screen";
+    ctx.fillStyle=gradient;
+    ctx.beginPath();
+    ctx.arc(cx,cy,radius*9,0,TAU);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(cx,cy,radius,0,TAU);
+    ctx.fillStyle=`hsla(${phase.colors[0]},100%,80%,.22)`;
+    ctx.shadowBlur=70+audio.bass*100;
+    ctx.shadowColor=`hsl(${phase.colors[0]},100%,65%)`;
+    ctx.fill();
+    ctx.restore();
+}
+
+// Additional sweeping light rays
+function drawRays(phase,audio) {
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(animationTime*.035);
+    ctx.globalCompositeOperation="screen";
+
+    for(let i=0;i<30;i++) {
+        const angle=i*TAU/30;
+        const length=Math.max(width,height)*(.25+audio.treble*.2);
+
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(angle)*50,Math.sin(angle)*50);
+        ctx.lineTo(Math.cos(angle)*length,Math.sin(angle)*length);
+
+        ctx.strokeStyle=`hsla(${phase.colors[i%3]},100%,70%,${.025+audio.treble*.07})`;
+        ctx.lineWidth=1;
+        ctx.stroke();
+    }
+
+    ctx.restore();
+}
+
+let lastFrame=0;
+
+function draw(timestamp) {
+    requestAnimationFrame(draw);
+
+    if(!started || paused) {
+        lastFrame=timestamp;
+        return;
+    }
+
+    const delta=Math.min((timestamp-lastFrame)/16.67,2);
+    lastFrame=timestamp;
+    animationTime+=.016*delta;
+
+    const seconds=music.currentTime||0;
+    const phase=getPhase(seconds);
+    const audio=readAudio();
+
+    ctx.clearRect(0,0,width,height);
+
+    drawNebulae(phase,audio);
+    drawRays(phase,audio);
+    drawRings(phase,audio);
+    drawStreams(phase,audio);
+    drawParticles(phase,audio);
+    drawCore(phase,audio);
+    drawStars();
+
+    document.getElementById("phase").textContent=phase.name;
+
+    const current=Math.floor(seconds);
+    const mins=Math.floor(current/60);
+    const secs=current%60;
+
+    document.getElementById("time").textContent=
+        `${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+
+    if(music.duration && Number.isFinite(music.duration)) {
+        document.getElementById("progressFill").style.width=
+            `${seconds/music.duration*100}%`;
+    }
+}
+
 async function begin() {
-    if (started) return;
+    if(started) return;
 
     initializeAudio();
 
     try {
         await audioContext.resume();
         await music.play();
-    } catch (error) {
-        console.error("Audio could not start:", error);
-        alert("The music couldn't start. Check that your MP3 is in the assets folder and try again.");
+    } catch(error) {
+        console.error(error);
+        alert("The music couldn't start. Check that your MP3 is in the assets folder.");
         return;
     }
 
-    started = true;
-    startTime = performance.now();
+    started=true;
+    intro.style.opacity="0";
 
-    intro.style.opacity = "0";
-    setTimeout(() => intro.style.display = "none", 2000);
+    setTimeout(()=>intro.style.display="none",2000);
 
     hud.classList.add("visible");
-
-    draw();
+    requestAnimationFrame(draw);
 }
 
-document.getElementById("startButton").addEventListener("click", begin);
+document.getElementById("startButton").addEventListener("click",begin);
 
-document.getElementById("pauseButton").addEventListener("click", async () => {
-    if (!started) return;
+document.getElementById("pauseButton").addEventListener("click",async()=>{
+    if(!started) return;
 
-    if (paused) {
+    if(paused) {
         await music.play();
-        paused = false;
-        document.getElementById("pauseButton").textContent = "Ⅱ";
+        paused=false;
+        document.getElementById("pauseButton").textContent="Ⅱ";
+        requestAnimationFrame(draw);
     } else {
         music.pause();
-        paused = true;
-        document.getElementById("pauseButton").textContent = "▶";
+        paused=true;
+        document.getElementById("pauseButton").textContent="▶";
     }
 });
 
-document.getElementById("muteButton").addEventListener("click", () => {
-    muted = !muted;
-    music.muted = muted;
-    document.getElementById("muteButton").textContent = muted ? "×" : "♪";
+document.getElementById("muteButton").addEventListener("click",()=>{
+    muted=!muted;
+    music.muted=muted;
+    document.getElementById("muteButton").textContent=muted?"×":"♪";
 });
 
-document.getElementById("restartButton").addEventListener("click", async () => {
-    music.currentTime = 0;
-    if (paused) {
+document.getElementById("restartButton").addEventListener("click",async()=>{
+    if(!started) return;
+
+    music.currentTime=0;
+
+    if(paused) {
         await music.play();
-        paused = false;
-        document.getElementById("pauseButton").textContent = "Ⅱ";
+        paused=false;
+        document.getElementById("pauseButton").textContent="Ⅱ";
+        requestAnimationFrame(draw);
     }
 });
 
-music.addEventListener("ended", () => {
-    paused = true;
-    document.getElementById("pauseButton").textContent = "▶";
+music.addEventListener("ended",()=>{
+    paused=true;
+    document.getElementById("pauseButton").textContent="▶";
 });
 
 drawStars();
 </script>
-
 </body>
 </html>
