@@ -4,265 +4,1092 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>INTERSTELLAR — Audio Visualizer</title>
+<title>INTERSTELLAR — 3D Audio Visualizer</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r160/three.min.js"></script>
+
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;overflow:hidden;background:#03020a;color:#fff;font-family:Montserrat,sans-serif}
-#visualizer{position:fixed;inset:0;width:100%;height:100%;z-index:1}
-.vignette{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.48) 100%)}
-.intro{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#03020a;transition:opacity 1.2s}
-.intro h1{font-size:clamp(32px,7vw,76px);font-weight:200;letter-spacing:.42em;padding-left:.42em;opacity:0;animation:reveal 2.5s ease forwards}
-.intro p{margin-top:22px;color:#b8a6e8;font-size:10px;letter-spacing:.45em;opacity:0;animation:reveal 2s ease .7s forwards}
-.start{margin-top:55px;padding:15px 32px;border:1px solid rgba(255,255,255,.55);background:transparent;color:#fff;font:10px Montserrat,sans-serif;letter-spacing:.3em;cursor:pointer;opacity:0;animation:reveal 2s ease 1.4s forwards}
-.start:hover{background:#fff;color:#080510}
-@keyframes reveal{to{opacity:1}}
-.hud{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:0;transition:opacity .8s}
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#020108;
+  color:white;
+  font-family:Montserrat,sans-serif;
+}
+
+#visualizer{
+  position:fixed;
+  inset:0;
+  z-index:1;
+}
+
+.vignette{
+  position:fixed;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 30%,rgba(0,0,0,.5) 100%);
+}
+
+.intro{
+  position:fixed;
+  inset:0;
+  z-index:5;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:#020108;
+  transition:opacity 1.2s;
+}
+
+.intro h1{
+  font-size:clamp(32px,7vw,76px);
+  font-weight:200;
+  letter-spacing:.42em;
+  padding-left:.42em;
+  opacity:0;
+  animation:reveal 2.5s ease forwards;
+}
+
+.intro p{
+  margin-top:22px;
+  color:#c1a9f5;
+  font-size:10px;
+  letter-spacing:.45em;
+  opacity:0;
+  animation:reveal 2s ease .7s forwards;
+}
+
+.start{
+  margin-top:55px;
+  padding:15px 32px;
+  border:1px solid rgba(255,255,255,.55);
+  background:transparent;
+  color:white;
+  font:10px Montserrat,sans-serif;
+  letter-spacing:.3em;
+  cursor:pointer;
+  opacity:0;
+  animation:reveal 2s ease 1.4s forwards;
+  transition:.25s;
+}
+
+.start:hover{
+  background:white;
+  color:#080510;
+}
+
+@keyframes reveal{
+  to{opacity:1}
+}
+
+.hud{
+  position:fixed;
+  inset:0;
+  z-index:3;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .8s;
+}
+
 .hud.visible{opacity:1}
-.logo{position:absolute;top:34px;left:40px;font-size:11px;letter-spacing:.4em}
-.phase{position:absolute;top:37px;right:40px;font-size:9px;letter-spacing:.25em;color:#d8caff}
-.track{position:absolute;left:40px;bottom:40px}
-.track-name{font-size:11px;letter-spacing:.25em;margin-bottom:8px}
-.track-sub{font-size:9px;letter-spacing:.2em;color:#aaa0cb}
-.controls{position:absolute;right:40px;bottom:35px;display:flex;gap:18px;pointer-events:auto}
-.controls button{border:0;background:transparent;color:white;font-size:20px;cursor:pointer}
+
+.logo{
+  position:absolute;
+  top:34px;
+  left:40px;
+  font-size:11px;
+  letter-spacing:.4em;
+}
+
+.phase{
+  position:absolute;
+  top:37px;
+  right:40px;
+  font-size:9px;
+  letter-spacing:.25em;
+  color:#d8caff;
+}
+
+.track{
+  position:absolute;
+  left:40px;
+  bottom:40px;
+}
+
+.track-name{
+  font-size:11px;
+  letter-spacing:.25em;
+  margin-bottom:8px;
+}
+
+.track-sub{
+  font-size:9px;
+  letter-spacing:.2em;
+  color:#aaa0cb;
+}
+
+.controls{
+  position:absolute;
+  right:40px;
+  bottom:35px;
+  display:flex;
+  gap:18px;
+  pointer-events:auto;
+}
+
+.controls button{
+  border:0;
+  background:transparent;
+  color:white;
+  font-size:20px;
+  cursor:pointer;
+}
+
 .controls button:hover{color:#ff8cff}
-.time{position:absolute;right:40px;bottom:70px;color:#c4b6e8;font-size:9px;letter-spacing:.15em}
-.progress{position:absolute;bottom:0;left:0;width:100%;height:2px;background:rgba(255,255,255,.15)}
-.progress-fill{height:100%;width:0;background:#fff}
-@media(max-width:600px){.logo{left:18px;top:20px}.phase{right:18px;top:23px}.track{left:18px;bottom:62px}.controls{right:18px;bottom:20px}.time{right:18px;bottom:53px}}
+
+.time{
+  position:absolute;
+  right:40px;
+  bottom:70px;
+  color:#c4b6e8;
+  font-size:9px;
+  letter-spacing:.15em;
+}
+
+.progress{
+  position:absolute;
+  bottom:0;
+  left:0;
+  width:100%;
+  height:2px;
+  background:rgba(255,255,255,.15);
+}
+
+.progress-fill{
+  height:100%;
+  width:0;
+  background:white;
+}
+
+@media(max-width:600px){
+  .logo{left:18px;top:20px}
+  .phase{right:18px;top:23px}
+  .track{left:18px;bottom:62px}
+  .controls{right:18px;bottom:20px}
+  .time{right:18px;bottom:53px}
+}
 </style>
 </head>
+
 <body>
-<canvas id="visualizer"></canvas><div class="vignette"></div>
+
+<div id="visualizer"></div>
+<div class="vignette"></div>
+
 <div class="intro" id="intro">
-  <h1>INTERSTELLAR</h1><p>A MUSICAL VISUAL EXPERIENCE</p>
+  <h1>INTERSTELLAR</h1>
+  <p>A MUSICAL VISUAL EXPERIENCE</p>
   <button class="start" id="startButton">ENTER THE EXPERIENCE</button>
 </div>
+
 <div class="hud" id="hud">
-  <div class="logo">INTERSTELLAR</div><div class="phase" id="phase">LIVE AUDIO REACTIVE</div>
-  <div class="track"><div class="track-name">MAIN THEME</div><div class="track-sub">HANS ZIMMER</div></div>
+  <div class="logo">INTERSTELLAR</div>
+  <div class="phase">LIVE 3D AUDIO REACTIVE</div>
+
+  <div class="track">
+    <div class="track-name">MAIN THEME</div>
+    <div class="track-sub">HANS ZIMMER</div>
+  </div>
+
   <div class="time" id="time">00:00</div>
+
   <div class="controls">
     <button id="pauseButton" title="Pause / Play">Ⅱ</button>
     <button id="restartButton" title="Restart">↺</button>
     <button id="muteButton" title="Mute">♪</button>
   </div>
-  <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="progress">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
 </div>
+
 <audio id="music" preload="auto">
   <source src="assets/Hans_Zimmer_-_Interstellar_Main_Theme_OST_INTERSTELLER_(mp3.pm)%20(1).mp3" type="audio/mpeg">
 </audio>
+
 <script>
-const canvas=document.getElementById('visualizer');
-const ctx=canvas.getContext('2d',{alpha:false});
-const music=document.getElementById('music');
-const $=id=>document.getElementById(id);
-const TAU=Math.PI*2;
-let W=0,H=0,cx=0,cy=0,scale=1;
-let audioContext,analyser,source,freqData,timeData;
-let started=false,paused=false,muted=false,raf=0,lastFrame=0,lastAudioTime=0;
-let energy=0,bass=0,mid=0,treble=0,beatPulse=0,notePulse=0;
-let bassHistory=[],fluxHistory=[],previousSpectrum=null;
-let particles=[];
-const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const lerp=(a,b,t)=>a+(b-a)*t;
-function resize(){
-  W=innerWidth;H=innerHeight;cx=W/2;cy=H/2;
-  scale=Math.min(devicePixelRatio||1,1)*.72;
-  canvas.width=Math.max(1,Math.floor(W*scale));canvas.height=Math.max(1,Math.floor(H*scale));
-  ctx.setTransform(scale,0,0,scale,0,0);
-  makeParticles();
+/* =========================================
+   BASIC SETUP
+========================================= */
+
+const music = document.getElementById("music");
+const $ = id => document.getElementById(id);
+
+const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+const lerp = (a,b,t) => a+(b-a)*t;
+
+let audioContext;
+let analyser;
+let source;
+let freqData;
+let timeData;
+let previousSpectrum;
+
+let started = false;
+let paused = false;
+let muted = false;
+
+let energy = 0;
+let bass = 0;
+let mid = 0;
+let treble = 0;
+
+let beatPulse = 0;
+let notePulse = 0;
+
+let bassHistory = [];
+let fluxHistory = [];
+
+let lastFrame = 0;
+let raf = 0;
+
+const mount = document.getElementById("visualizer");
+
+/* =========================================
+   THREE.JS SCENE
+========================================= */
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x020108);
+scene.fog = new THREE.FogExp2(0x020108,0.035);
+
+const camera = new THREE.PerspectiveCamera(
+  55,
+  window.innerWidth/window.innerHeight,
+  0.1,
+  150
+);
+
+camera.position.set(0,0,10);
+
+const renderer = new THREE.WebGLRenderer({
+  antialias:false,
+  alpha:false,
+  powerPreference:"high-performance"
+});
+
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.25));
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+mount.appendChild(renderer.domElement);
+
+/* =========================================
+   LIGHTING
+========================================= */
+
+const ambient = new THREE.AmbientLight(0x625080,1.2);
+scene.add(ambient);
+
+const light1 = new THREE.PointLight(0x00cfff,3,25);
+light1.position.set(4,3,5);
+scene.add(light1);
+
+const light2 = new THREE.PointLight(0xd000ff,3,25);
+light2.position.set(-4,-3,-4);
+scene.add(light2);
+
+const light3 = new THREE.PointLight(0xff4c9b,2,20);
+light3.position.set(0,5,-3);
+scene.add(light3);
+
+/* =========================================
+   AUDIO-REACTIVE SHADER
+========================================= */
+
+const vertexShader = `
+uniform float uTime;
+uniform float uBass;
+uniform float uMid;
+uniform float uTreble;
+uniform float uBeat;
+uniform float uNote;
+uniform float uEnergy;
+uniform float uOffset;
+
+varying vec3 vPosition;
+varying vec3 vNormal;
+varying float vWave;
+
+void main(){
+
+  vec3 p = position;
+  vec3 n = normalize(normal);
+
+  float t = uTime;
+
+  float wave1 = sin(p.x*4.0 + t*1.5 + uOffset);
+  float wave2 = cos(p.y*5.0 - t*1.2);
+  float wave3 = sin(p.z*6.0 + t*1.8);
+
+  float organic = wave1*wave2*wave3;
+
+  float movement =
+      organic * (0.08 + uEnergy*0.24)
+      + sin(p.x*9.0 + t*2.0)*uMid*0.08
+      + cos(p.y*8.0 - t*2.5)*uTreble*0.06;
+
+  float impact = uBeat*0.55 + uNote*0.18;
+
+  p += n * (movement + impact);
+
+  vWave = organic;
+  vPosition = p;
+  vNormal = normalize(normalMatrix*n);
+
+  gl_Position = projectionMatrix *
+                modelViewMatrix *
+                vec4(p,1.0);
+
+  gl_PointSize = 2.0;
 }
-function makeParticles(){
-  particles=Array.from({length:105},()=>({
-    angle:Math.random()*TAU,r:Math.random()*Math.min(W,H)*.48+25,
-    speed:(Math.random()*.002+.0005)*(Math.random()<.5?-1:1),
-    size:Math.random()*1.8+.5,hue:Math.random()*360
-  }));
+`;
+
+const fragmentShader = `
+uniform float uTime;
+uniform float uBass;
+uniform float uMid;
+uniform float uTreble;
+uniform float uBeat;
+uniform float uNote;
+uniform float uEnergy;
+uniform float uOffset;
+
+varying vec3 vPosition;
+varying vec3 vNormal;
+varying float vWave;
+
+vec3 palette(float t){
+  vec3 a = vec3(0.5,0.5,0.5);
+  vec3 b = vec3(0.5,0.5,0.5);
+  vec3 c = vec3(1.0,1.0,1.0);
+  vec3 d = vec3(0.0,0.18,0.36);
+
+  return a + b*cos(6.28318*(c*t+d));
 }
-addEventListener('resize',resize);resize();
+
+void main(){
+
+  float t = uTime*0.09 + uOffset;
+
+  float pattern =
+      length(vPosition)*0.5
+      + vWave*0.22
+      + uMid*0.3;
+
+  vec3 color = palette(pattern+t);
+
+  float fresnel = pow(
+      1.0-abs(dot(normalize(vNormal),vec3(0.0,0.0,1.0))),
+      2.0
+  );
+
+  color *= 0.55 + fresnel*1.8;
+  color += vec3(0.15,0.35,0.65)*uBeat*1.3;
+  color += vec3(0.6,0.1,0.8)*uNote*0.8;
+  color *= 0.75 + uEnergy*1.2;
+
+  gl_FragColor = vec4(color,1.0);
+}
+`;
+
+function makeReactiveMaterial(offset){
+  return new THREE.ShaderMaterial({
+    uniforms:{
+      uTime:{value:0},
+      uBass:{value:0},
+      uMid:{value:0},
+      uTreble:{value:0},
+      uBeat:{value:0},
+      uNote:{value:0},
+      uEnergy:{value:0},
+      uOffset:{value:offset}
+    },
+    vertexShader,
+    fragmentShader,
+    side:THREE.DoubleSide,
+    wireframe:false
+  });
+}
+
+/* =========================================
+   MAIN MORPHING GEOMETRY
+========================================= */
+
+const coreGroup = new THREE.Group();
+scene.add(coreGroup);
+
+const coreGeometry = new THREE.IcosahedronGeometry(2.05,5);
+
+const coreMaterial = makeReactiveMaterial(0.1);
+
+const core = new THREE.Mesh(coreGeometry,coreMaterial);
+coreGroup.add(core);
+
+/* Wireframe layer */
+
+const wireMaterial = new THREE.MeshBasicMaterial({
+  color:0x9b69ff,
+  wireframe:true,
+  transparent:true,
+  opacity:0.17,
+  blending:THREE.AdditiveBlending
+});
+
+const wire = new THREE.Mesh(coreGeometry,wireMaterial);
+wire.scale.setScalar(1.008);
+coreGroup.add(wire);
+
+/* =========================================
+   SECONDARY MORPHING SHAPES
+========================================= */
+
+const forms = [];
+
+for(let i=0;i<3;i++){
+
+  const geometry = new THREE.TorusKnotGeometry(
+    1.6+i*.45,
+    .035+i*.012,
+    180,
+    8,
+    2+i,
+    3+i
+  );
+
+  const material = new THREE.MeshBasicMaterial({
+    color:[0x00dfff,0xc14cff,0xff4eac][i],
+    wireframe:true,
+    transparent:true,
+    opacity:.35,
+    blending:THREE.AdditiveBlending
+  });
+
+  const mesh = new THREE.Mesh(geometry,material);
+
+  mesh.scale.setScalar(1+i*.17);
+  mesh.rotation.set(i*.8,i*.6,i*.4);
+
+  coreGroup.add(mesh);
+
+  forms.push({
+    mesh,
+    base:i,
+    speed:.2+i*.13
+  });
+}
+
+/* =========================================
+   ORBITAL RINGS
+========================================= */
+
+const rings = [];
+
+for(let i=0;i<5;i++){
+
+  const geometry = new THREE.TorusGeometry(
+    2.7+i*.48,
+    .009+i*.002,
+    6,
+    160
+  );
+
+  const material = new THREE.MeshBasicMaterial({
+    color:[0x00cfff,0x8a3fff,0xff35b7,0xff9c42,0x48f5ff][i],
+    transparent:true,
+    opacity:.25,
+    blending:THREE.AdditiveBlending
+  });
+
+  const ring = new THREE.Mesh(geometry,material);
+
+  ring.rotation.x = Math.random()*Math.PI;
+  ring.rotation.y = Math.random()*Math.PI;
+  ring.rotation.z = Math.random()*Math.PI;
+
+  scene.add(ring);
+
+  rings.push({
+    mesh:ring,
+    speed:.1+i*.07,
+    offset:i
+  });
+}
+
+/* =========================================
+   3D PARTICLE UNIVERSE
+========================================= */
+
+const PARTICLE_COUNT = 1300;
+
+const particlePositions = new Float32Array(PARTICLE_COUNT*3);
+const particleSizes = new Float32Array(PARTICLE_COUNT);
+
+for(let i=0;i<PARTICLE_COUNT;i++){
+
+  const radius = 4+Math.random()*22;
+  const theta = Math.random()*Math.PI*2;
+  const phi = Math.acos(2*Math.random()-1);
+
+  particlePositions[i*3] =
+    radius*Math.sin(phi)*Math.cos(theta);
+
+  particlePositions[i*3+1] =
+    radius*Math.sin(phi)*Math.sin(theta);
+
+  particlePositions[i*3+2] =
+    radius*Math.cos(phi);
+
+  particleSizes[i] = Math.random()*2.5+.5;
+}
+
+const particleGeometry = new THREE.BufferGeometry();
+
+particleGeometry.setAttribute(
+  "position",
+  new THREE.BufferAttribute(particlePositions,3)
+);
+
+particleGeometry.setAttribute(
+  "size",
+  new THREE.BufferAttribute(particleSizes,1)
+);
+
+const particleMaterial = new THREE.PointsMaterial({
+  color:0x9a8cff,
+  size:.045,
+  transparent:true,
+  opacity:.8,
+  blending:THREE.AdditiveBlending,
+  depthWrite:false,
+  sizeAttenuation:true
+});
+
+const particleCloud = new THREE.Points(
+  particleGeometry,
+  particleMaterial
+);
+
+scene.add(particleCloud);
+
+/* =========================================
+   3D FLOWING RIBBONS
+========================================= */
+
+const ribbons = [];
+
+for(let j=0;j<4;j++){
+
+  const points = [];
+  const segments = 180;
+
+  for(let i=0;i<segments;i++){
+    points.push(new THREE.Vector3());
+  }
+
+  const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+  const material = new THREE.LineBasicMaterial({
+    color:[0x00dfff,0xff38c8,0x8d54ff,0xff9c42][j],
+    transparent:true,
+    opacity:.65,
+    blending:THREE.AdditiveBlending
+  });
+
+  const line = new THREE.Line(geometry,material);
+  scene.add(line);
+
+  ribbons.push({
+    line,
+    segments,
+    offset:j*1.7
+  });
+}
+
+/* =========================================
+   BACKGROUND STAR FIELD
+========================================= */
+
+const starPositions = new Float32Array(900*3);
+
+for(let i=0;i<900;i++){
+
+  starPositions[i*3]=(Math.random()-.5)*70;
+  starPositions[i*3+1]=(Math.random()-.5)*50;
+  starPositions[i*3+2]=(Math.random()-.5)*65;
+}
+
+const starGeometry = new THREE.BufferGeometry();
+
+starGeometry.setAttribute(
+  "position",
+  new THREE.BufferAttribute(starPositions,3)
+);
+
+const stars = new THREE.Points(
+  starGeometry,
+  new THREE.PointsMaterial({
+    color:0xffffff,
+    size:.025,
+    transparent:true,
+    opacity:.65,
+    depthWrite:false
+  })
+);
+
+scene.add(stars);
+
+/* =========================================
+   AUDIO ANALYSIS
+========================================= */
 
 function setupAudio(){
+
   if(audioContext)return;
-  audioContext=new(window.AudioContext||window.webkitAudioContext)();
-  analyser=audioContext.createAnalyser();
-  analyser.fftSize=1024;
-  analyser.smoothingTimeConstant=.68;
-  source=audioContext.createMediaElementSource(music);
-  source.connect(analyser);analyser.connect(audioContext.destination);
-  freqData=new Uint8Array(analyser.frequencyBinCount);
-  timeData=new Uint8Array(analyser.fftSize);
-  previousSpectrum=new Float32Array(analyser.frequencyBinCount);
+
+  audioContext = new (
+    window.AudioContext ||
+    window.webkitAudioContext
+  )();
+
+  analyser = audioContext.createAnalyser();
+
+  analyser.fftSize = 2048;
+  analyser.smoothingTimeConstant = .68;
+
+  source = audioContext.createMediaElementSource(music);
+
+  source.connect(analyser);
+  analyser.connect(audioContext.destination);
+
+  freqData = new Uint8Array(analyser.frequencyBinCount);
+  timeData = new Uint8Array(analyser.fftSize);
+
+  previousSpectrum = new Float32Array(
+    analyser.frequencyBinCount
+  );
 }
+
 function averageBand(from,to){
-  let sum=0,n=0;
-  for(let i=from;i<Math.min(to,freqData.length);i++){sum+=freqData[i]/255;n++}
-  return n?sum/n:0;
+
+  let sum=0;
+  let count=0;
+
+  for(let i=from;i<Math.min(to,freqData.length);i++){
+
+    sum += freqData[i]/255;
+    count++;
+  }
+
+  return count ? sum/count : 0;
 }
+
 function analyseAudio(dt){
-  if(!analyser||paused||music.ended)return;
+
+  if(!analyser || paused || music.ended)return;
+
   analyser.getByteFrequencyData(freqData);
   analyser.getByteTimeDomainData(timeData);
-  const rawBass=averageBand(2,18);
-  const rawMid=averageBand(18,105);
-  const rawTreble=averageBand(105,250);
-  const rawEnergy=averageBand(1,250);
-  bass=lerp(bass,rawBass,rawBass>bass?.72:.2);
-  mid=lerp(mid,rawMid,.32);treble=lerp(treble,rawTreble,.3);
-  energy=lerp(energy,rawEnergy,.28);
 
-  // Detect fresh low-frequency impacts relative to the recent bass level.
-  const bassMean=bassHistory.length?bassHistory.reduce((a,b)=>a+b,0)/bassHistory.length:0;
-  const bassRise=rawBass-bassMean;
-  bassHistory.push(rawBass);if(bassHistory.length>24)bassHistory.shift();
-  if(bassRise>.045&&rawBass>.075)beatPulse=Math.max(beatPulse,clamp(.35+bassRise*5,.35,1));
+  const rawBass = averageBand(2,22);
+  const rawMid = averageBand(22,140);
+  const rawTreble = averageBand(140,500);
+  const rawEnergy = averageBand(1,500);
 
-  // Spectral flux catches distinct piano attacks and other strong note onsets.
+  bass = lerp(bass,rawBass,rawBass>bass?.75:.2);
+  mid = lerp(mid,rawMid,.3);
+  treble = lerp(treble,rawTreble,.3);
+  energy = lerp(energy,rawEnergy,.3);
+
+  /* Beat detection */
+
+  const bassMean = bassHistory.length
+    ? bassHistory.reduce((a,b)=>a+b,0)/bassHistory.length
+    : 0;
+
+  const bassRise = rawBass-bassMean;
+
+  bassHistory.push(rawBass);
+
+  if(bassHistory.length>25)bassHistory.shift();
+
+  if(bassRise>.035 && rawBass>.065){
+
+    beatPulse = Math.max(
+      beatPulse,
+      clamp(.35+bassRise*6,.35,1)
+    );
+  }
+
+  /* Major note detection */
+
   let flux=0;
-  for(let i=2;i<Math.min(170,freqData.length);i++){
-    const v=freqData[i]/255;
-    const rise=v-previousSpectrum[i];
+
+  for(let i=2;i<Math.min(300,freqData.length);i++){
+
+    const value=freqData[i]/255;
+    const rise=value-previousSpectrum[i];
+
     if(rise>0)flux+=rise;
-    previousSpectrum[i]=v;
+
+    previousSpectrum[i]=value;
   }
-  flux/=168;
-  const fluxMean=fluxHistory.length?fluxHistory.reduce((a,b)=>a+b,0)/fluxHistory.length:0;
-  fluxHistory.push(flux);if(fluxHistory.length>28)fluxHistory.shift();
-  if(flux>Math.max(.006,fluxMean*1.75))notePulse=Math.max(notePulse,clamp(flux*19,.2,1));
-  beatPulse*=Math.exp(-dt*5.8);
-  notePulse*=Math.exp(-dt*3.8);
-}
-function idleAudio(dt){
-  const decay=Math.exp(-dt*1.45);
-  energy*=decay;bass*=decay;mid*=decay;treble*=decay;
-  beatPulse*=Math.exp(-dt*2.2);notePulse*=Math.exp(-dt*1.8);
-}
-function drawBackground(t,e){
-  ctx.fillStyle='#03020a';ctx.fillRect(0,0,W,H);
-  const hue=(205+mid*110+notePulse*35+t*3)%360;
-  const r=Math.min(W,H)*(.18+e*.22+beatPulse*.18);
-  const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r*2.7);
-  g.addColorStop(0,`hsla(${hue},95%,${12+e*13+beatPulse*12}%,.9)`);
-  g.addColorStop(.48,`hsla(${(hue+65)%360},90%,25%,.22)`);
-  g.addColorStop(1,'rgba(3,2,10,0)');
-  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-}
-function drawSpectrum(t){
-  const count=112,base=Math.min(W,H)*(.19+beatPulse*.12+energy*.06);
-  ctx.save();ctx.translate(cx,cy);
-  for(let i=0;i<count;i++){
-    const bin=Math.floor(2+i*i/count/count*230);
-    const v=freqData?freqData[Math.min(bin,freqData.length-1)]/255:0;
-    const angle=i/count*TAU-t*.08;
-    const h=3+v*Math.min(W,H)*.22+beatPulse*9;
-    const inner=base;
-    const outer=inner+h;
-    const hue=(190+i/count*190+t*9+notePulse*30)%360;
-    ctx.strokeStyle=`hsla(${hue},100%,${58+v*28}%,${.48+v*.5})`;
-    ctx.lineWidth=1.5+v*2.5+beatPulse*1.4;
-    ctx.beginPath();ctx.moveTo(Math.cos(angle)*inner,Math.sin(angle)*inner);
-    ctx.lineTo(Math.cos(angle)*outer,Math.sin(angle)*outer);ctx.stroke();
+
+  flux/=298;
+
+  const fluxMean = fluxHistory.length
+    ? fluxHistory.reduce((a,b)=>a+b,0)/fluxHistory.length
+    : 0;
+
+  fluxHistory.push(flux);
+
+  if(fluxHistory.length>30)fluxHistory.shift();
+
+  if(flux>Math.max(.005,fluxMean*1.7)){
+
+    notePulse=Math.max(
+      notePulse,
+      clamp(flux*20,.2,1)
+    );
   }
-  ctx.restore();
+
+  beatPulse*=Math.exp(-dt*5.5);
+  notePulse*=Math.exp(-dt*3.5);
 }
-function drawWaveform(t){
-  if(!timeData)return;
-  ctx.save();ctx.translate(cx,cy);
-  ctx.beginPath();
-  const radius=Math.min(W,H)*(.17+beatPulse*.07+notePulse*.035);
-  for(let i=0;i<=timeData.length;i+=2){
-    const idx=i%timeData.length;
-    const sample=(timeData[idx]-128)/128;
-    const angle=i/timeData.length*TAU-t*.035;
-    const r=radius+sample*(14+energy*55+beatPulse*30);
-    const x=Math.cos(angle)*r,y=Math.sin(angle)*r;
-    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
-  }
-  ctx.closePath();ctx.lineWidth=1.5+energy*2.5+beatPulse*2;
-  ctx.strokeStyle=`hsla(${190+notePulse*100+t*5},100%,75%,${.45+energy*.5})`;ctx.stroke();
-  ctx.restore();
+
+/* =========================================
+   PAUSE DECAY
+========================================= */
+
+function decayAudio(dt){
+
+  const decay=Math.exp(-dt*1.25);
+
+  energy*=decay;
+  bass*=decay;
+  mid*=decay;
+  treble*=decay;
+
+  beatPulse*=Math.exp(-dt*1.8);
+  notePulse*=Math.exp(-dt*1.5);
 }
-function drawImpactRings(t){
-  ctx.save();ctx.translate(cx,cy);
-  for(let j=0;j<3;j++){
-    const p=j===0?beatPulse:j===1?notePulse:Math.max(beatPulse*.55,notePulse*.35);
-    const radius=Math.min(W,H)*(.12+j*.085)+p*85;
-    ctx.beginPath();ctx.ellipse(0,0,radius,radius*(.72+j*.06),t*.05+j*.4,0,TAU);
-    ctx.lineWidth=1+j*.65+p*3;
-    ctx.strokeStyle=`hsla(${(195+j*65+t*7)%360},100%,${65+p*25}%,${.12+p*.75})`;
-    ctx.stroke();
-  }
-  ctx.restore();
+
+/* =========================================
+   UPDATE SHADER UNIFORMS
+========================================= */
+
+function updateMaterial(material,t){
+
+  const u=material.uniforms;
+
+  u.uTime.value=t;
+  u.uBass.value=bass;
+  u.uMid.value=mid;
+  u.uTreble.value=treble;
+  u.uBeat.value=beatPulse;
+  u.uNote.value=notePulse;
+  u.uEnergy.value=energy;
 }
-function drawParticles(t,dt){
-  const activity=clamp(energy*2.1+beatPulse*.9+notePulse*.5,0,1);
-  ctx.save();ctx.globalCompositeOperation='lighter';
-  for(const p of particles){
-    p.angle+=p.speed*(.2+activity*5);
-    const pulse=beatPulse*38+notePulse*18;
-    const radius=p.r+pulse+Math.sin(t*.7+p.hue)*activity*12;
-    const x=cx+Math.cos(p.angle)*radius,y=cy+Math.sin(p.angle)*radius*.72;
-    const size=p.size*(.35+activity*1.8);
-    ctx.fillStyle=`hsla(${(p.hue+t*10+notePulse*70)%360},100%,70%,${.12+activity*.78})`;
-    ctx.fillRect(x,y,size,size);
-  }
-  ctx.restore();
+
+/* =========================================
+   UPDATE 3D WORLD
+========================================= */
+
+function updateWorld(t,dt){
+
+  const activity=clamp(
+    energy*2+beatPulse+notePulse*.5,
+    0,1
+  );
+
+  /* Main organic object */
+
+  updateMaterial(coreMaterial,t);
+
+  coreGroup.rotation.x += dt*(.12+mid*.5+beatPulse*.35);
+  coreGroup.rotation.y += dt*(.17+bass*.7+notePulse*.3);
+  coreGroup.rotation.z += dt*(.08+treble*.3);
+
+  const coreScale=1+beatPulse*.2+notePulse*.09+energy*.07;
+
+  coreGroup.scale.setScalar(coreScale);
+
+  wire.rotation.x=-coreGroup.rotation.x*.7;
+  wire.rotation.y=-coreGroup.rotation.y*.7;
+
+  /* Morphing knot structures */
+
+  forms.forEach((form,i)=>{
+
+    const m=form.mesh;
+
+    m.rotation.x += dt*form.speed*(1+mid*2);
+    m.rotation.y += dt*form.speed*.8*(1+bass*2);
+    m.rotation.z += dt*form.speed*.5;
+
+    const wobble=1+Math.sin(t*.8+form.base)*.12+beatPulse*.12;
+
+    m.scale.setScalar(wobble*(1+i*.17));
+  });
+
+  /* Rings */
+
+  rings.forEach((ring,i)=>{
+
+    const m=ring.mesh;
+
+    m.rotation.x += dt*ring.speed*(1+bass*2);
+    m.rotation.y += dt*ring.speed*.7*(1+mid*2);
+    m.rotation.z += dt*ring.speed*.5;
+
+    const s=1+beatPulse*.13+notePulse*.07;
+
+    m.scale.set(s,s,s);
+    m.material.opacity=.18+activity*.32;
+  });
+
+  /* Particle universe */
+
+  particleCloud.rotation.y += dt*(.025+energy*.12);
+  particleCloud.rotation.x += dt*(.015+mid*.08);
+  particleCloud.rotation.z += dt*(.01+notePulse*.1);
+
+  particleMaterial.opacity=.25+activity*.65;
+  particleMaterial.size=.025+activity*.035;
+
+  /* Flowing 3D ribbons */
+
+  ribbons.forEach((ribbon,j)=>{
+
+    const positions=ribbon.line.geometry.attributes.position.array;
+
+    for(let i=0;i<ribbon.segments;i++){
+
+      const p=i/ribbon.segments;
+      const angle=p*Math.PI*5+t*(.5+j*.13)+ribbon.offset;
+
+      const radius=2.5+
+        Math.sin(angle*1.7+t+j)*(.5+energy*1.4)+
+        beatPulse*.7;
+
+      const depth=Math.sin(angle*1.3+t*.7+j)*(
+        1.2+mid*2+notePulse
+      );
+
+      positions[i*3]=Math.cos(angle)*radius;
+      positions[i*3+1]=Math.sin(angle*1.2)*radius;
+      positions[i*3+2]=depth+Math.cos(angle*2+t)*activity;
+    }
+
+    ribbon.line.geometry.attributes.position.needsUpdate=true;
+    ribbon.line.material.opacity=.12+activity*.75;
+  });
+
+  /* Camera reacts to music */
+
+  camera.position.x=Math.sin(t*.12)*(.1+energy*.3);
+  camera.position.y=Math.cos(t*.16)*(.1+energy*.25);
+  camera.position.z=10-beatPulse*.65-notePulse*.2;
+
+  camera.lookAt(0,0,0);
+
+  /* Lighting reacts to sound */
+
+  light1.intensity=1.2+energy*5+beatPulse*5;
+  light2.intensity=1+mid*4+notePulse*5;
+  light3.intensity=.8+treble*4+beatPulse*2;
+
+  light1.position.x=Math.sin(t*.4)*5;
+  light2.position.y=Math.cos(t*.35)*5;
 }
-function drawCore(t){
-  const pulse=beatPulse*1.5+notePulse*.65+energy*.25;
-  const radius=5+pulse*42;
-  ctx.save();ctx.globalCompositeOperation='lighter';
-  ctx.beginPath();ctx.arc(cx,cy,radius,0,TAU);
-  ctx.fillStyle=`hsla(${195+notePulse*110+t*5},100%,${70+pulse*15}%,${.25+pulse*.55})`;ctx.fill();
-  ctx.beginPath();ctx.arc(cx,cy,2+pulse*8,0,TAU);
-  ctx.fillStyle='#fff';ctx.fill();ctx.restore();
-}
+
+/* =========================================
+   RENDER LOOP
+========================================= */
+
 function render(timestamp){
+
   if(!started)return;
+
   raf=requestAnimationFrame(render);
+
   if(timestamp-lastFrame<1000/30)return;
-  const dt=lastFrame?Math.min((timestamp-lastFrame)/1000,.05):1/30;
+
+  const dt=lastFrame
+    ?Math.min((timestamp-lastFrame)/1000,.05)
+    :1/30;
+
   lastFrame=timestamp;
-  if(!paused&&!music.ended)analyseAudio(dt);else idleAudio(dt);
-  const t=music.currentTime||0;
-  drawBackground(t,energy);
-  // Every layer is driven by measured audio energy or detected note/beat attacks.
-  drawImpactRings(t);drawSpectrum(t);drawWaveform(t);drawParticles(t,dt);drawCore(t);
-  $('time').textContent=`${String(Math.floor(t/60)).padStart(2,'0')}:${String(Math.floor(t%60)).padStart(2,'0')}`;
-  if(music.duration&&Number.isFinite(music.duration))$('progressFill').style.width=`${t/music.duration*100}%`;
-}
-async function begin(){
-  if(started)return;
-  setupAudio();
-  try{await audioContext.resume();await music.play()}
-  catch(e){console.error(e);alert('Could not play the music. Check that the MP3 is still inside your assets folder.');return}
-  started=true;paused=false;
-  $('intro').style.opacity='0';setTimeout(()=>$('intro').style.display='none',1200);
-  $('hud').classList.add('visible');lastFrame=0;cancelAnimationFrame(raf);raf=requestAnimationFrame(render);
-}
-$('startButton').addEventListener('click',begin);
-$('pauseButton').addEventListener('click',async()=>{
-  if(!started)return;
-  if(!paused){
-    music.pause();paused=true;$('pauseButton').textContent='▶';
-    // Keep rendering while paused: the audio-reactive energy decays smoothly to stillness.
+
+  if(!paused && !music.ended){
+    analyseAudio(dt);
   }else{
-    try{await audioContext.resume();await music.play();paused=false;$('pauseButton').textContent='Ⅱ'}
-    catch(e){console.error(e)}
+    decayAudio(dt);
+  }
+
+  const t=music.currentTime||0;
+
+  updateWorld(t,dt);
+
+  renderer.render(scene,camera);
+
+  $("time").textContent=
+    `${String(Math.floor(t/60)).padStart(2,"0")}:`+
+    `${String(Math.floor(t%60)).padStart(2,"0")}`;
+
+  if(music.duration && Number.isFinite(music.duration)){
+    $("progressFill").style.width=
+      `${t/music.duration*100}%`;
+  }
+}
+
+/* =========================================
+   CONTROLS
+========================================= */
+
+async function begin(){
+
+  if(started)return;
+
+  setupAudio();
+
+  try{
+
+    await audioContext.resume();
+    await music.play();
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "Could not play the music. Check that your MP3 is still inside the assets folder."
+    );
+
+    return;
+  }
+
+  started=true;
+  paused=false;
+
+  $("intro").style.opacity="0";
+
+  setTimeout(()=>{
+    $("intro").style.display="none";
+  },1200);
+
+  $("hud").classList.add("visible");
+
+  lastFrame=0;
+
+  cancelAnimationFrame(raf);
+  raf=requestAnimationFrame(render);
+}
+
+$("startButton").addEventListener("click",begin);
+
+$("pauseButton").addEventListener("click",async()=>{
+
+  if(!started)return;
+
+  if(!paused){
+
+    music.pause();
+    paused=true;
+
+    $("pauseButton").textContent="▶";
+
+  }else{
+
+    try{
+
+      await audioContext.resume();
+      await music.play();
+
+      paused=false;
+
+      $("pauseButton").textContent="Ⅱ";
+
+    }catch(error){
+      console.error(error);
+    }
   }
 });
-$('restartButton').addEventListener('click',async()=>{
+
+$("restartButton").addEventListener("click",async()=>{
+
   if(!started)return;
+
   music.currentTime=0;
-  bassHistory=[];fluxHistory=[];beatPulse=0;notePulse=0;
-  if(paused){try{await audioContext.resume();await music.play();paused=false;$('pauseButton').textContent='Ⅱ'}catch(e){console.error(e)}}
+
+  bassHistory=[];
+  fluxHistory=[];
+
+  beatPulse=0;
+  notePulse=0;
+
+  if(paused){
+
+    try{
+
+      await audioContext.resume();
+      await music.play();
+
+      paused=false;
+
+      $("pauseButton").textContent="Ⅱ";
+
+    }catch(error){
+      console.error(error);
+    }
+  }
 });
-$('muteButton').addEventListener('click',()=>{
-  muted=!muted;music.muted=muted;$('muteButton').textContent=muted?'×':'♪';
+
+$("muteButton").addEventListener("click",()=>{
+
+  muted=!muted;
+  music.muted=muted;
+
+  $("muteButton").textContent=muted?"×":"♪";
 });
-music.addEventListener('ended',()=>{paused=true;$('pauseButton').textContent='▶'});
+
+/* =========================================
+   RESIZE
+========================================= */
+
+window.addEventListener("resize",()=>{
+
+  camera.aspect=window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(window.innerWidth,window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.25));
+});
+
+music.addEventListener("ended",()=>{
+
+  paused=true;
+  $("pauseButton").textContent="▶";
+});
+
 </script>
 </body>
 </html>
