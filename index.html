@@ -4,669 +4,265 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>INTERSTELLAR — Visual Experience</title>
+<title>INTERSTELLAR — Audio Visualizer</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400&display=swap');
-
-* { margin:0; padding:0; box-sizing:border-box; }
-
-body {
-    background:#03000b;
-    color:white;
-    font-family:Montserrat,sans-serif;
-    height:100vh;
-    overflow:hidden;
-}
-
-canvas {
-    position:fixed;
-    inset:0;
-    width:100%;
-    height:100%;
-}
-
-#visualizer { z-index:1; }
-
-.vignette {
-    position:fixed;
-    inset:0;
-    z-index:2;
-    pointer-events:none;
-    background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.3));
-}
-
-.intro {
-    position:fixed;
-    inset:0;
-    z-index:5;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    background:#03000b;
-    transition:opacity 1.5s;
-}
-
-.intro h1 {
-    font-size:clamp(35px,7vw,76px);
-    font-weight:200;
-    letter-spacing:.42em;
-    padding-left:.42em;
-    opacity:0;
-    animation:reveal 3s ease forwards;
-}
-
-.intro p {
-    font-size:10px;
-    letter-spacing:.45em;
-    color:#b8a6e8;
-    margin-top:22px;
-    opacity:0;
-    animation:reveal 2s ease 1s forwards;
-}
-
-.start {
-    margin-top:60px;
-    background:transparent;
-    border:1px solid rgba(255,255,255,.5);
-    color:white;
-    padding:16px 36px;
-    font-family:inherit;
-    font-size:10px;
-    letter-spacing:.35em;
-    cursor:pointer;
-    opacity:0;
-    animation:reveal 2s ease 2s forwards;
-}
-
-.start:hover {
-    background:white;
-    color:black;
-}
-
-@keyframes reveal { to { opacity:1; } }
-
-.hud {
-    position:fixed;
-    z-index:3;
-    inset:0;
-    pointer-events:none;
-    opacity:0;
-    transition:opacity 1s;
-}
-
-.hud.visible { opacity:1; }
-
-.logo {
-    position:absolute;
-    top:35px;
-    left:42px;
-    font-size:11px;
-    letter-spacing:.4em;
-}
-
-.phase {
-    position:absolute;
-    top:38px;
-    right:42px;
-    font-size:9px;
-    color:#d4c8ff;
-    letter-spacing:.3em;
-}
-
-.track {
-    position:absolute;
-    bottom:42px;
-    left:42px;
-}
-
-.track-name {
-    font-size:11px;
-    letter-spacing:.25em;
-    margin-bottom:9px;
-}
-
-.track-sub {
-    color:#aaa0cb;
-    font-size:9px;
-    letter-spacing:.2em;
-}
-
-.controls {
-    position:absolute;
-    bottom:38px;
-    right:42px;
-    display:flex;
-    gap:18px;
-    pointer-events:auto;
-}
-
-.controls button {
-    color:white;
-    background:transparent;
-    border:none;
-    font-size:19px;
-    cursor:pointer;
-}
-
-.controls button:hover { color:#ff8cff; }
-
-.progress {
-    position:absolute;
-    bottom:0;
-    left:0;
-    width:100%;
-    height:2px;
-    background:rgba(255,255,255,.15);
-}
-
-.progress-fill {
-    height:100%;
-    width:0%;
-    background:#fff;
-}
-
-.time {
-    position:absolute;
-    bottom:72px;
-    right:42px;
-    color:#c4b6e8;
-    font-size:9px;
-    letter-spacing:.15em;
-}
-
-@media(max-width:600px) {
-    .logo { left:20px; top:22px; }
-    .phase { right:20px; top:25px; }
-    .track { left:20px; bottom:65px; }
-    .controls { right:20px; bottom:22px; }
-    .time { right:20px; bottom:53px; }
-}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#03020a;color:#fff;font-family:Montserrat,sans-serif}
+#visualizer{position:fixed;inset:0;width:100%;height:100%;z-index:1}
+.vignette{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.48) 100%)}
+.intro{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#03020a;transition:opacity 1.2s}
+.intro h1{font-size:clamp(32px,7vw,76px);font-weight:200;letter-spacing:.42em;padding-left:.42em;opacity:0;animation:reveal 2.5s ease forwards}
+.intro p{margin-top:22px;color:#b8a6e8;font-size:10px;letter-spacing:.45em;opacity:0;animation:reveal 2s ease .7s forwards}
+.start{margin-top:55px;padding:15px 32px;border:1px solid rgba(255,255,255,.55);background:transparent;color:#fff;font:10px Montserrat,sans-serif;letter-spacing:.3em;cursor:pointer;opacity:0;animation:reveal 2s ease 1.4s forwards}
+.start:hover{background:#fff;color:#080510}
+@keyframes reveal{to{opacity:1}}
+.hud{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:0;transition:opacity .8s}
+.hud.visible{opacity:1}
+.logo{position:absolute;top:34px;left:40px;font-size:11px;letter-spacing:.4em}
+.phase{position:absolute;top:37px;right:40px;font-size:9px;letter-spacing:.25em;color:#d8caff}
+.track{position:absolute;left:40px;bottom:40px}
+.track-name{font-size:11px;letter-spacing:.25em;margin-bottom:8px}
+.track-sub{font-size:9px;letter-spacing:.2em;color:#aaa0cb}
+.controls{position:absolute;right:40px;bottom:35px;display:flex;gap:18px;pointer-events:auto}
+.controls button{border:0;background:transparent;color:white;font-size:20px;cursor:pointer}
+.controls button:hover{color:#ff8cff}
+.time{position:absolute;right:40px;bottom:70px;color:#c4b6e8;font-size:9px;letter-spacing:.15em}
+.progress{position:absolute;bottom:0;left:0;width:100%;height:2px;background:rgba(255,255,255,.15)}
+.progress-fill{height:100%;width:0;background:#fff}
+@media(max-width:600px){.logo{left:18px;top:20px}.phase{right:18px;top:23px}.track{left:18px;bottom:62px}.controls{right:18px;bottom:20px}.time{right:18px;bottom:53px}}
 </style>
 </head>
-
 <body>
-
-<canvas id="visualizer"></canvas>
-<div class="vignette"></div>
-
+<canvas id="visualizer"></canvas><div class="vignette"></div>
 <div class="intro" id="intro">
-    <h1>INTERSTELLAR</h1>
-    <p>A MUSICAL VISUAL EXPERIENCE</p>
-    <button class="start" id="startButton">ENTER THE EXPERIENCE</button>
+  <h1>INTERSTELLAR</h1><p>A MUSICAL VISUAL EXPERIENCE</p>
+  <button class="start" id="startButton">ENTER THE EXPERIENCE</button>
 </div>
-
 <div class="hud" id="hud">
-    <div class="logo">INTERSTELLAR</div>
-    <div class="phase" id="phase">I — AWAKENING</div>
-
-    <div class="track">
-        <div class="track-name">MAIN THEME</div>
-        <div class="track-sub">HANS ZIMMER</div>
-    </div>
-
-    <div class="time" id="time">00:00</div>
-
-    <div class="controls">
-        <button id="pauseButton" title="Pause / Play">Ⅱ</button>
-        <button id="restartButton" title="Restart">↺</button>
-        <button id="muteButton" title="Mute">♪</button>
-    </div>
-
-    <div class="progress">
-        <div class="progress-fill" id="progressFill"></div>
-    </div>
+  <div class="logo">INTERSTELLAR</div><div class="phase" id="phase">LIVE AUDIO REACTIVE</div>
+  <div class="track"><div class="track-name">MAIN THEME</div><div class="track-sub">HANS ZIMMER</div></div>
+  <div class="time" id="time">00:00</div>
+  <div class="controls">
+    <button id="pauseButton" title="Pause / Play">Ⅱ</button>
+    <button id="restartButton" title="Restart">↺</button>
+    <button id="muteButton" title="Mute">♪</button>
+  </div>
+  <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
 </div>
-
 <audio id="music" preload="auto">
-    <source src="assets/Hans_Zimmer_-_Interstellar_Main_Theme_OST_INTERSTELLER_(mp3.pm)%20(1).mp3" type="audio/mpeg">
+  <source src="assets/Hans_Zimmer_-_Interstellar_Main_Theme_OST_INTERSTELLER_(mp3.pm)%20(1).mp3" type="audio/mpeg">
 </audio>
-
 <script>
-const canvas = document.getElementById("visualizer");
-const ctx = canvas.getContext("2d", {alpha:false});
-const music = document.getElementById("music");
-
-let W,H,cx,cy,scale;
-let started=false,paused=false,muted=false;
-let audioContext,analyser,source,data;
-let clock=0,lastFrame=0;
-let particles=[],ribbons=[],stars=[];
-
+const canvas=document.getElementById('visualizer');
+const ctx=canvas.getContext('2d',{alpha:false});
+const music=document.getElementById('music');
+const $=id=>document.getElementById(id);
 const TAU=Math.PI*2;
-const FPS=30;
-const FRAME=1000/FPS;
-const PARTICLE_COUNT=190;
-
-const palettes=[
-    {name:"I — AWAKENING",hues:[195,260,315]},
-    {name:"II — ASCENSION",hues:[275,320,185]},
-    {name:"III — INFINITY",hues:[315,185,45]},
-    {name:"IV — TRANSCENDENCE",hues:[35,190,280]},
-    {name:"V — BEYOND",hues:[185,235,325]},
-    {name:"VI — ETERNITY",hues:[265,45,190]}
-];
-
-function rand(a,b){return Math.random()*(b-a)+a;}
-
+let W=0,H=0,cx=0,cy=0,scale=1;
+let audioContext,analyser,source,freqData,timeData;
+let started=false,paused=false,muted=false,raf=0,lastFrame=0,lastAudioTime=0;
+let energy=0,bass=0,mid=0,treble=0,beatPulse=0,notePulse=0;
+let bassHistory=[],fluxHistory=[],previousSpectrum=null;
+let particles=[];
+const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
 function resize(){
-    W=window.innerWidth;
-    H=window.innerHeight;
-    cx=W/2;
-    cy=H/2;
-
-    // Lower internal resolution keeps the effects lightweight.
-    scale=Math.min(window.devicePixelRatio||1,1)*.72;
-
-    canvas.width=Math.round(W*scale);
-    canvas.height=Math.round(H*scale);
-    ctx.setTransform(scale,0,0,scale,0,0);
-
-    makeParticles();
-    makeRibbons();
-    makeStars();
+  W=innerWidth;H=innerHeight;cx=W/2;cy=H/2;
+  scale=Math.min(devicePixelRatio||1,1)*.72;
+  canvas.width=Math.max(1,Math.floor(W*scale));canvas.height=Math.max(1,Math.floor(H*scale));
+  ctx.setTransform(scale,0,0,scale,0,0);
+  makeParticles();
 }
-
-window.addEventListener("resize",resize);
-
 function makeParticles(){
-    particles=[];
-    for(let i=0;i<PARTICLE_COUNT;i++){
-        particles.push({
-            angle:rand(0,TAU),
-            radius:rand(25,Math.max(W,H)*.65),
-            speed:rand(.006,.023)*(Math.random()<.5?-1:1),
-            size:rand(.8,2.5),
-            wave:rand(0,TAU),
-            hue:rand(0,360),
-            drift:rand(10,65)
-        });
-    }
+  particles=Array.from({length:105},()=>({
+    angle:Math.random()*TAU,r:Math.random()*Math.min(W,H)*.48+25,
+    speed:(Math.random()*.002+.0005)*(Math.random()<.5?-1:1),
+    size:Math.random()*1.8+.5,hue:Math.random()*360
+  }));
 }
-
-function makeRibbons(){
-    ribbons=[];
-    for(let i=0;i<9;i++){
-        ribbons.push({
-            angle:rand(0,TAU),
-            speed:rand(.009,.025),
-            radius:rand(70,Math.max(W,H)*.38),
-            length:rand(100,280),
-            width:rand(1.2,3),
-            offset:rand(0,TAU)
-        });
-    }
-}
-
-function makeStars(){
-    stars=[];
-    for(let i=0;i<150;i++){
-        stars.push({
-            x:rand(0,W),
-            y:rand(0,H),
-            size:rand(.5,1.6),
-            speed:rand(.3,1.8)
-        });
-    }
-}
-
-resize();
+addEventListener('resize',resize);resize();
 
 function setupAudio(){
-    if(audioContext)return;
-
-    audioContext=new(window.AudioContext||window.webkitAudioContext)();
-    analyser=audioContext.createAnalyser();
-    analyser.fftSize=256;
-    analyser.smoothingTimeConstant=.72;
-
-    source=audioContext.createMediaElementSource(music);
-    source.connect(analyser);
-    analyser.connect(audioContext.destination);
-
-    data=new Uint8Array(analyser.frequencyBinCount);
+  if(audioContext)return;
+  audioContext=new(window.AudioContext||window.webkitAudioContext)();
+  analyser=audioContext.createAnalyser();
+  analyser.fftSize=1024;
+  analyser.smoothingTimeConstant=.68;
+  source=audioContext.createMediaElementSource(music);
+  source.connect(analyser);analyser.connect(audioContext.destination);
+  freqData=new Uint8Array(analyser.frequencyBinCount);
+  timeData=new Uint8Array(analyser.fftSize);
+  previousSpectrum=new Float32Array(analyser.frequencyBinCount);
 }
-
-function getAudio(){
-    if(!analyser||muted)return {bass:0,mid:0,high:0,volume:0};
-
-    analyser.getByteFrequencyData(data);
-
-    let bass=0,mid=0,high=0,all=0;
-
-    for(let i=0;i<data.length;i++){
-        const v=data[i]/255;
-        all+=v;
-
-        if(i<10)bass+=v;
-        else if(i<35)mid+=v;
-        else high+=v;
-    }
-
-    return {
-        bass:bass/10,
-        mid:mid/25,
-        high:high/(data.length-35),
-        volume:all/data.length
-    };
+function averageBand(from,to){
+  let sum=0,n=0;
+  for(let i=from;i<Math.min(to,freqData.length);i++){sum+=freqData[i]/255;n++}
+  return n?sum/n:0;
 }
+function analyseAudio(dt){
+  if(!analyser||paused||music.ended)return;
+  analyser.getByteFrequencyData(freqData);
+  analyser.getByteTimeDomainData(timeData);
+  const rawBass=averageBand(2,18);
+  const rawMid=averageBand(18,105);
+  const rawTreble=averageBand(105,250);
+  const rawEnergy=averageBand(1,250);
+  bass=lerp(bass,rawBass,rawBass>bass?.72:.2);
+  mid=lerp(mid,rawMid,.32);treble=lerp(treble,rawTreble,.3);
+  energy=lerp(energy,rawEnergy,.28);
 
-function getPalette(seconds){
-    const index=Math.min(palettes.length-1,Math.floor(seconds/40));
-    return palettes[index];
+  // Detect fresh low-frequency impacts relative to the recent bass level.
+  const bassMean=bassHistory.length?bassHistory.reduce((a,b)=>a+b,0)/bassHistory.length:0;
+  const bassRise=rawBass-bassMean;
+  bassHistory.push(rawBass);if(bassHistory.length>24)bassHistory.shift();
+  if(bassRise>.045&&rawBass>.075)beatPulse=Math.max(beatPulse,clamp(.35+bassRise*5,.35,1));
+
+  // Spectral flux catches distinct piano attacks and other strong note onsets.
+  let flux=0;
+  for(let i=2;i<Math.min(170,freqData.length);i++){
+    const v=freqData[i]/255;
+    const rise=v-previousSpectrum[i];
+    if(rise>0)flux+=rise;
+    previousSpectrum[i]=v;
+  }
+  flux/=168;
+  const fluxMean=fluxHistory.length?fluxHistory.reduce((a,b)=>a+b,0)/fluxHistory.length:0;
+  fluxHistory.push(flux);if(fluxHistory.length>28)fluxHistory.shift();
+  if(flux>Math.max(.006,fluxMean*1.75))notePulse=Math.max(notePulse,clamp(flux*19,.2,1));
+  beatPulse*=Math.exp(-dt*5.8);
+  notePulse*=Math.exp(-dt*3.8);
 }
-
-// Bright, continuously moving color fields.
-function drawColorFields(p,a){
-    const shift=clock*.35;
-    const size=Math.max(W,H)*.8;
-
-    ctx.save();
-    ctx.globalCompositeOperation="screen";
-
-    for(let i=0;i<3;i++){
-        const angle=shift*(i%2===0?1:-1)+i*TAU/3;
-        const x=cx+Math.cos(angle)*W*.34;
-        const y=cy+Math.sin(angle*1.4)*H*.3;
-        const r=size*(.42+a.bass*.18);
-
-        const g=ctx.createRadialGradient(x,y,0,x,y,r);
-        g.addColorStop(0,`hsla(${p.hues[i]},100%,53%,.22)`);
-        g.addColorStop(.45,`hsla(${p.hues[(i+1)%3]},100%,45%,.10)`);
-        g.addColorStop(1,"rgba(0,0,0,0)");
-
-        ctx.fillStyle=g;
-        ctx.fillRect(0,0,W,H);
-    }
-
-    ctx.restore();
+function idleAudio(dt){
+  const decay=Math.exp(-dt*1.45);
+  energy*=decay;bass*=decay;mid*=decay;treble*=decay;
+  beatPulse*=Math.exp(-dt*2.2);notePulse*=Math.exp(-dt*1.8);
 }
-
-// Constantly swirling spiral formations.
-function drawSpirals(p,a){
-    ctx.save();
-    ctx.translate(cx,cy);
-    ctx.globalCompositeOperation="lighter";
-
-    for(let s=0;s<5;s++){
-        const hue=p.hues[s%3];
-
-        ctx.beginPath();
-
-        for(let i=0;i<=180;i++){
-            const t=i/180;
-            const angle=t*TAU*3+clock*(s%2===0?1.3:-1.1)+s*1.2;
-            const radius=20+t*Math.max(W,H)*.38+
-                Math.sin(t*18+clock*3+s)*12+
-                a.bass*35;
-
-            const x=Math.cos(angle)*radius;
-            const y=Math.sin(angle)*radius*.65;
-
-            if(i===0)ctx.moveTo(x,y);
-            else ctx.lineTo(x,y);
-        }
-
-        ctx.strokeStyle=`hsla(${hue},100%,68%,.45)`;
-        ctx.lineWidth=1.5+a.mid*2;
-        ctx.stroke();
-    }
-
-    ctx.restore();
+function drawBackground(t,e){
+  ctx.fillStyle='#03020a';ctx.fillRect(0,0,W,H);
+  const hue=(205+mid*110+notePulse*35+t*3)%360;
+  const r=Math.min(W,H)*(.18+e*.22+beatPulse*.18);
+  const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r*2.7);
+  g.addColorStop(0,`hsla(${hue},95%,${12+e*13+beatPulse*12}%,.9)`);
+  g.addColorStop(.48,`hsla(${(hue+65)%360},90%,25%,.22)`);
+  g.addColorStop(1,'rgba(3,2,10,0)');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
 }
-
-// Fast-moving colorful particles.
-function drawParticles(p,a){
-    ctx.save();
-    ctx.globalCompositeOperation="lighter";
-
-    for(const q of particles){
-        q.angle+=q.speed*(1+a.bass*1.5);
-
-        q.radius+=Math.sin(clock*2+q.wave)*.8;
-        if(q.radius>Math.max(W,H)*.68)q.radius=25;
-
-        const r=q.radius+
-            Math.sin(clock*3+q.wave)*q.drift+
-            a.bass*55;
-
-        const x=cx+Math.cos(q.angle)*r;
-        const y=cy+Math.sin(q.angle)*r*.72;
-
-        const hue=(q.hue+clock*65)%360;
-        const size=q.size+a.high*2;
-
-        ctx.fillStyle=`hsla(${hue},100%,70%,.9)`;
-        ctx.beginPath();
-        ctx.arc(x,y,size,0,TAU);
-        ctx.fill();
-
-        // Short motion streak, no expensive blur.
-        ctx.strokeStyle=`hsla(${hue},100%,65%,.4)`;
-        ctx.lineWidth=1;
-        ctx.beginPath();
-        ctx.moveTo(x,y);
-        ctx.lineTo(
-            x-Math.cos(q.angle)*size*5,
-            y-Math.sin(q.angle)*size*5
-        );
-        ctx.stroke();
-    }
-
-    ctx.restore();
+function drawSpectrum(t){
+  const count=112,base=Math.min(W,H)*(.19+beatPulse*.12+energy*.06);
+  ctx.save();ctx.translate(cx,cy);
+  for(let i=0;i<count;i++){
+    const bin=Math.floor(2+i*i/count/count*230);
+    const v=freqData?freqData[Math.min(bin,freqData.length-1)]/255:0;
+    const angle=i/count*TAU-t*.08;
+    const h=3+v*Math.min(W,H)*.22+beatPulse*9;
+    const inner=base;
+    const outer=inner+h;
+    const hue=(190+i/count*190+t*9+notePulse*30)%360;
+    ctx.strokeStyle=`hsla(${hue},100%,${58+v*28}%,${.48+v*.5})`;
+    ctx.lineWidth=1.5+v*2.5+beatPulse*1.4;
+    ctx.beginPath();ctx.moveTo(Math.cos(angle)*inner,Math.sin(angle)*inner);
+    ctx.lineTo(Math.cos(angle)*outer,Math.sin(angle)*outer);ctx.stroke();
+  }
+  ctx.restore();
 }
-
-// Fast ribbons sweeping around the entire screen.
-function drawRibbons(p,a){
-    ctx.save();
-    ctx.globalCompositeOperation="lighter";
-
-    for(let i=0;i<ribbons.length;i++){
-        const r=ribbons[i];
-        r.angle+=r.speed*(1+a.volume*1.5);
-
-        const hue=p.hues[i%3];
-        const x=cx+Math.cos(r.angle)*r.radius;
-        const y=cy+Math.sin(r.angle)*r.radius*.65;
-
-        ctx.beginPath();
-        ctx.moveTo(x,y);
-
-        ctx.bezierCurveTo(
-            cx+Math.cos(r.angle+1.5)*r.length,
-            cy+Math.sin(r.angle+1.5)*r.length,
-            cx+Math.cos(r.angle+2.4)*r.length*1.4,
-            cy+Math.sin(r.angle+2.4)*r.length*1.4,
-            cx+Math.cos(r.angle+3)*r.length,
-            cy+Math.sin(r.angle+3)*r.length
-        );
-
-        ctx.strokeStyle=`hsla(${hue},100%,65%,.65)`;
-        ctx.lineWidth=r.width+a.bass*2;
-        ctx.stroke();
-    }
-
-    ctx.restore();
+function drawWaveform(t){
+  if(!timeData)return;
+  ctx.save();ctx.translate(cx,cy);
+  ctx.beginPath();
+  const radius=Math.min(W,H)*(.17+beatPulse*.07+notePulse*.035);
+  for(let i=0;i<=timeData.length;i+=2){
+    const idx=i%timeData.length;
+    const sample=(timeData[idx]-128)/128;
+    const angle=i/timeData.length*TAU-t*.035;
+    const r=radius+sample*(14+energy*55+beatPulse*30);
+    const x=Math.cos(angle)*r,y=Math.sin(angle)*r;
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  }
+  ctx.closePath();ctx.lineWidth=1.5+energy*2.5+beatPulse*2;
+  ctx.strokeStyle=`hsla(${190+notePulse*100+t*5},100%,75%,${.45+energy*.5})`;ctx.stroke();
+  ctx.restore();
 }
-
-// Big energetic waves.
-function drawWaves(p,a){
-    ctx.save();
-    ctx.translate(cx,cy);
-    ctx.globalCompositeOperation="lighter";
-
-    for(let ring=0;ring<7;ring++){
-        const radius=40+ring*55+
-            Math.sin(clock*3+ring)*18+
-            a.bass*90;
-
-        const hue=p.hues[ring%3];
-
-        ctx.beginPath();
-
-        for(let i=0;i<=120;i++){
-            const angle=i/120*TAU;
-            const distortion=
-                Math.sin(angle*6+clock*4+ring)*18+
-                Math.sin(angle*11-clock*3)*10+
-                a.mid*25;
-
-            const rr=radius+distortion;
-            const x=Math.cos(angle+clock*.35)*rr;
-            const y=Math.sin(angle+clock*.35)*rr*.8;
-
-            if(i===0)ctx.moveTo(x,y);
-            else ctx.lineTo(x,y);
-        }
-
-        ctx.closePath();
-        ctx.strokeStyle=`hsla(${hue},100%,70%,.55)`;
-        ctx.lineWidth=1.5+a.bass*2;
-        ctx.stroke();
-    }
-
-    ctx.restore();
+function drawImpactRings(t){
+  ctx.save();ctx.translate(cx,cy);
+  for(let j=0;j<3;j++){
+    const p=j===0?beatPulse:j===1?notePulse:Math.max(beatPulse*.55,notePulse*.35);
+    const radius=Math.min(W,H)*(.12+j*.085)+p*85;
+    ctx.beginPath();ctx.ellipse(0,0,radius,radius*(.72+j*.06),t*.05+j*.4,0,TAU);
+    ctx.lineWidth=1+j*.65+p*3;
+    ctx.strokeStyle=`hsla(${(195+j*65+t*7)%360},100%,${65+p*25}%,${.12+p*.75})`;
+    ctx.stroke();
+  }
+  ctx.restore();
 }
-
-// Constantly shifting center burst.
-function drawCenter(p,a){
-    const pulse=1+a.bass*2+Math.sin(clock*5)*.25;
-    const radius=35*pulse;
-
-    const g=ctx.createRadialGradient(cx,cy,0,cx,cy,radius*5);
-    g.addColorStop(0,`hsla(${p.hues[0]},100%,90%,.85)`);
-    g.addColorStop(.25,`hsla(${p.hues[1]},100%,65%,.4)`);
-    g.addColorStop(.6,`hsla(${p.hues[2]},100%,55%,.12)`);
-    g.addColorStop(1,"rgba(0,0,0,0)");
-
-    ctx.save();
-    ctx.globalCompositeOperation="lighter";
-    ctx.fillStyle=g;
-    ctx.fillRect(cx-radius*5,cy-radius*5,radius*10,radius*10);
-    ctx.restore();
+function drawParticles(t,dt){
+  const activity=clamp(energy*2.1+beatPulse*.9+notePulse*.5,0,1);
+  ctx.save();ctx.globalCompositeOperation='lighter';
+  for(const p of particles){
+    p.angle+=p.speed*(.2+activity*5);
+    const pulse=beatPulse*38+notePulse*18;
+    const radius=p.r+pulse+Math.sin(t*.7+p.hue)*activity*12;
+    const x=cx+Math.cos(p.angle)*radius,y=cy+Math.sin(p.angle)*radius*.72;
+    const size=p.size*(.35+activity*1.8);
+    ctx.fillStyle=`hsla(${(p.hue+t*10+notePulse*70)%360},100%,70%,${.12+activity*.78})`;
+    ctx.fillRect(x,y,size,size);
+  }
+  ctx.restore();
 }
-
-function drawStarfield(){
-    ctx.save();
-    ctx.globalAlpha=.65;
-
-    for(const s of stars){
-        s.x+=Math.cos(clock+s.y)*s.speed;
-        s.y+=Math.sin(clock*.7+s.x)*s.speed;
-
-        if(s.x<0)s.x=W;
-        if(s.x>W)s.x=0;
-        if(s.y<0)s.y=H;
-        if(s.y>H)s.y=0;
-
-        ctx.fillStyle="#ffffff";
-        ctx.fillRect(s.x,s.y,s.size,s.size);
-    }
-
-    ctx.restore();
+function drawCore(t){
+  const pulse=beatPulse*1.5+notePulse*.65+energy*.25;
+  const radius=5+pulse*42;
+  ctx.save();ctx.globalCompositeOperation='lighter';
+  ctx.beginPath();ctx.arc(cx,cy,radius,0,TAU);
+  ctx.fillStyle=`hsla(${195+notePulse*110+t*5},100%,${70+pulse*15}%,${.25+pulse*.55})`;ctx.fill();
+  ctx.beginPath();ctx.arc(cx,cy,2+pulse*8,0,TAU);
+  ctx.fillStyle='#fff';ctx.fill();ctx.restore();
 }
-
-function draw(timestamp){
-    requestAnimationFrame(draw);
-
-    if(!started||paused)return;
-    if(timestamp-lastFrame<FRAME)return;
-
-    const delta=lastFrame?Math.min((timestamp-lastFrame)/16.67,2):1;
-    lastFrame=timestamp;
-
-    clock+=.045*delta;
-
-    const seconds=music.currentTime||0;
-    const palette=getPalette(seconds);
-    const audio=getAudio();
-
-    // Solid background: no costly full-screen blur.
-    ctx.fillStyle="#03000b";
-    ctx.fillRect(0,0,W,H);
-
-    drawColorFields(palette,audio);
-    drawStarfield();
-    drawSpirals(palette,audio);
-    drawWaves(palette,audio);
-    drawRibbons(palette,audio);
-    drawParticles(palette,audio);
-    drawCenter(palette,audio);
-
-    document.getElementById("phase").textContent=palette.name;
-
-    const time=Math.floor(seconds);
-    document.getElementById("time").textContent=
-        `${String(Math.floor(time/60)).padStart(2,"0")}:${String(time%60).padStart(2,"0")}`;
-
-    if(music.duration&&Number.isFinite(music.duration)){
-        document.getElementById("progressFill").style.width=
-            `${seconds/music.duration*100}%`;
-    }
+function render(timestamp){
+  if(!started)return;
+  raf=requestAnimationFrame(render);
+  if(timestamp-lastFrame<1000/30)return;
+  const dt=lastFrame?Math.min((timestamp-lastFrame)/1000,.05):1/30;
+  lastFrame=timestamp;
+  if(!paused&&!music.ended)analyseAudio(dt);else idleAudio(dt);
+  const t=music.currentTime||0;
+  drawBackground(t,energy);
+  // Every layer is driven by measured audio energy or detected note/beat attacks.
+  drawImpactRings(t);drawSpectrum(t);drawWaveform(t);drawParticles(t,dt);drawCore(t);
+  $('time').textContent=`${String(Math.floor(t/60)).padStart(2,'0')}:${String(Math.floor(t%60)).padStart(2,'0')}`;
+  if(music.duration&&Number.isFinite(music.duration))$('progressFill').style.width=`${t/music.duration*100}%`;
 }
-
 async function begin(){
-    if(started)return;
-
-    setupAudio();
-
-    try{
-        await audioContext.resume();
-        await music.play();
-    }catch(e){
-        console.error(e);
-        alert("Couldn't play the music. Check your MP3 file in assets.");
-        return;
-    }
-
-    started=true;
-    intro.style.opacity="0";
-    setTimeout(()=>intro.style.display="none",1500);
-    document.getElementById("hud").classList.add("visible");
-    requestAnimationFrame(draw);
+  if(started)return;
+  setupAudio();
+  try{await audioContext.resume();await music.play()}
+  catch(e){console.error(e);alert('Could not play the music. Check that the MP3 is still inside your assets folder.');return}
+  started=true;paused=false;
+  $('intro').style.opacity='0';setTimeout(()=>$('intro').style.display='none',1200);
+  $('hud').classList.add('visible');lastFrame=0;cancelAnimationFrame(raf);raf=requestAnimationFrame(render);
 }
-
-document.getElementById("startButton").onclick=begin;
-
-document.getElementById("pauseButton").onclick=async()=>{
-    if(!started)return;
-
-    if(paused){
-        await music.play();
-        paused=false;
-        document.getElementById("pauseButton").textContent="Ⅱ";
-        requestAnimationFrame(draw);
-    }else{
-        music.pause();
-        paused=true;
-        document.getElementById("pauseButton").textContent="▶";
-    }
-};
-
-document.getElementById("muteButton").onclick=()=>{
-    muted=!muted;
-    music.muted=muted;
-    document.getElementById("muteButton").textContent=muted?"×":"♪";
-};
-
-document.getElementById("restartButton").onclick=async()=>{
-    if(!started)return;
-
-    music.currentTime=0;
-
-    if(paused){
-        await music.play();
-        paused=false;
-        document.getElementById("pauseButton").textContent="Ⅱ";
-        requestAnimationFrame(draw);
-    }
-};
-
-music.addEventListener("ended",()=>{
-    paused=true;
-    document.getElementById("pauseButton").textContent="▶";
+$('startButton').addEventListener('click',begin);
+$('pauseButton').addEventListener('click',async()=>{
+  if(!started)return;
+  if(!paused){
+    music.pause();paused=true;$('pauseButton').textContent='▶';
+    // Keep rendering while paused: the audio-reactive energy decays smoothly to stillness.
+  }else{
+    try{await audioContext.resume();await music.play();paused=false;$('pauseButton').textContent='Ⅱ'}
+    catch(e){console.error(e)}
+  }
 });
+$('restartButton').addEventListener('click',async()=>{
+  if(!started)return;
+  music.currentTime=0;
+  bassHistory=[];fluxHistory=[];beatPulse=0;notePulse=0;
+  if(paused){try{await audioContext.resume();await music.play();paused=false;$('pauseButton').textContent='Ⅱ'}catch(e){console.error(e)}}
+});
+$('muteButton').addEventListener('click',()=>{
+  muted=!muted;music.muted=muted;$('muteButton').textContent=muted?'×':'♪';
+});
+music.addEventListener('ended',()=>{paused=true;$('pauseButton').textContent='▶'});
 </script>
-
 </body>
 </html>
