@@ -34,7 +34,7 @@ canvas {
     inset:0;
     z-index:2;
     pointer-events:none;
-    background:radial-gradient(ellipse at center,transparent 20%,rgba(0,0,0,.48) 100%);
+    background:radial-gradient(ellipse at center,transparent 20%,rgba(0,0,0,.42) 100%);
 }
 
 .intro {
@@ -85,7 +85,7 @@ canvas {
 .start:hover {
     background:white;
     color:black;
-    box-shadow:0 0 45px rgba(150,120,255,.6);
+    box-shadow:0 0 35px rgba(150,120,255,.5);
 }
 
 @keyframes reveal { to { opacity:1; } }
@@ -151,12 +151,11 @@ canvas {
     border:none;
     font-size:19px;
     cursor:pointer;
-    transition:.3s;
 }
 
 .controls button:hover {
     color:white;
-    text-shadow:0 0 20px white;
+    text-shadow:0 0 12px white;
 }
 
 .progress {
@@ -172,7 +171,6 @@ canvas {
     height:100%;
     width:0%;
     background:white;
-    box-shadow:0 0 12px white;
 }
 
 .time {
@@ -239,76 +237,111 @@ const bctx = bg.getContext("2d");
 const ctx = canvas.getContext("2d");
 
 const music = document.getElementById("music");
-const intro = document.getElementById("intro");
-const hud = document.getElementById("hud");
 
 let width, height, cx, cy;
 let started = false;
 let paused = false;
 let muted = false;
-let animationTime = 0;
+
 let analyser, audioContext, source, frequencyData;
 
 let stars = [];
 let particles = [];
 let streams = [];
-let nebulae = [];
+let clouds = [];
+
+let animationTime = 0;
+let lastFrame = 0;
 
 const TAU = Math.PI * 2;
+
+// Performance settings
+const FPS = 30;
+const FRAME_TIME = 1000 / FPS;
+const PARTICLE_COUNT = 260;
+const STAR_COUNT = 220;
+
+// Reusable cloud image
+const cloudTexture = document.createElement("canvas");
+cloudTexture.width = 256;
+cloudTexture.height = 256;
+
+const cloudCtx = cloudTexture.getContext("2d");
+const cloudGradient = cloudCtx.createRadialGradient(128,128,0,128,128,128);
+
+cloudGradient.addColorStop(0,"rgba(255,255,255,.65)");
+cloudGradient.addColorStop(.25,"rgba(255,255,255,.25)");
+cloudGradient.addColorStop(.6,"rgba(255,255,255,.07)");
+cloudGradient.addColorStop(1,"rgba(255,255,255,0)");
+
+cloudCtx.fillStyle = cloudGradient;
+cloudCtx.fillRect(0,0,256,256);
 
 function random(min,max) {
     return Math.random()*(max-min)+min;
 }
 
 function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
     width = window.innerWidth;
     height = window.innerHeight;
     cx = width/2;
     cy = height/2;
 
+    // Render below full device pixel resolution for better performance.
+    const scale = Math.min(window.devicePixelRatio || 1, 1) * .85;
+
     for(const c of [bg,canvas]) {
-        c.width = width*dpr;
-        c.height = height*dpr;
+        c.width = Math.round(width*scale);
+        c.height = Math.round(height*scale);
+
         c.style.width = width+"px";
         c.style.height = height+"px";
-        c.getContext("2d").setTransform(dpr,0,0,dpr,0,0);
+
+        c.getContext("2d").setTransform(scale,0,0,scale,0,0);
     }
 
     createStars();
     createParticles();
     createStreams();
-    createNebulae();
+    createClouds();
 }
 
 window.addEventListener("resize",resize);
 
 function createStars() {
     stars = [];
-    for(let i=0;i<500;i++) {
+
+    for(let i=0;i<STAR_COUNT;i++) {
         stars.push({
             x:random(0,width),
             y:random(0,height),
-            size:random(.3,1.8),
-            alpha:random(.15,.9),
-            speed:random(.2,1.5)
+            size:random(.3,1.5),
+            alpha:random(.2,.85)
         });
+    }
+
+    // Stars are static, so draw them only once.
+    bctx.clearRect(0,0,width,height);
+
+    for(const s of stars) {
+        bctx.beginPath();
+        bctx.arc(s.x,s.y,s.size,0,TAU);
+        bctx.fillStyle=`rgba(190,200,255,${s.alpha})`;
+        bctx.fill();
     }
 }
 
 function createParticles() {
     particles = [];
 
-    for(let i=0;i<650;i++) {
+    for(let i=0;i<PARTICLE_COUNT;i++) {
         particles.push({
             angle:random(0,TAU),
-            radius:random(30,Math.max(width,height)*.7),
-            speed:random(.0004,.0025),
-            size:random(.5,2.6),
-            alpha:random(.2,.9),
+            radius:random(35,Math.max(width,height)*.65),
+            speed:random(.001,.004),
+            size:random(.7,2.2),
             wave:random(0,TAU),
-            hue:random(0,360)
+            alpha:random(.3,.9)
         });
     }
 }
@@ -316,28 +349,27 @@ function createParticles() {
 function createStreams() {
     streams = [];
 
-    for(let i=0;i<12;i++) {
+    for(let i=0;i<6;i++) {
         streams.push({
             angle:random(0,TAU),
-            radius:random(100,Math.max(width,height)*.5),
-            speed:random(.001,.003),
-            length:random(100,280),
-            width:random(1,3),
-            hue:random(180,330)
+            radius:random(100,Math.max(width,height)*.45),
+            speed:random(.002,.006),
+            length:random(100,260),
+            hue:i*55
         });
     }
 }
 
-function createNebulae() {
-    nebulae = [];
+function createClouds() {
+    clouds = [];
 
-    for(let i=0;i<9;i++) {
-        nebulae.push({
+    for(let i=0;i<6;i++) {
+        clouds.push({
             x:random(0,width),
             y:random(0,height),
-            radius:random(100,280),
+            size:random(180,380),
             hue:random(180,330),
-            drift:random(.15,.6),
+            speed:random(.15,.55),
             phase:random(0,TAU)
         });
     }
@@ -345,14 +377,15 @@ function createNebulae() {
 
 resize();
 
-// Music analysis
+// Audio setup
 function initializeAudio() {
     if(audioContext) return;
 
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
     analyser = audioContext.createAnalyser();
-    analyser.fftSize = 512;
-    analyser.smoothingTimeConstant = .78;
+    analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = .85;
 
     source = audioContext.createMediaElementSource(music);
     source.connect(analyser);
@@ -361,41 +394,38 @@ function initializeAudio() {
     frequencyData = new Uint8Array(analyser.frequencyBinCount);
 }
 
-function readAudio() {
+function getAudio() {
     if(!analyser || muted) {
-        return {volume:0,bass:0,mid:0,treble:0};
+        return {volume:0,bass:0,treble:0};
     }
 
     analyser.getByteFrequencyData(frequencyData);
 
-    function average(start,end) {
-        let sum=0;
-        let count=0;
+    let bass=0, treble=0, volume=0;
 
-        for(let i=start;i<Math.min(end,frequencyData.length);i++) {
-            sum+=frequencyData[i];
-            count++;
-        }
+    for(let i=0;i<frequencyData.length;i++) {
+        const value=frequencyData[i]/255;
+        volume+=value;
 
-        return count ? sum/count/255 : 0;
+        if(i<12) bass+=value;
+        if(i>30) treble+=value;
     }
 
     return {
-        volume:average(0,frequencyData.length),
-        bass:average(0,12),
-        mid:average(12,65),
-        treble:average(65,frequencyData.length)
+        volume:volume/frequencyData.length,
+        bass:bass/12,
+        treble:treble/(frequencyData.length-31)
     };
 }
 
-// Automatic color and visual progression
+// Color progression
 const phases = [
-    {time:0,name:"I — AWAKENING",colors:[220,260,190],power:.65},
+    {time:0,name:"I — AWAKENING",colors:[220,260,190],power:.8},
     {time:35,name:"II — ASCENSION",colors:[260,190,320],power:1},
-    {time:80,name:"III — INFINITY",colors:[290,330,200],power:1.25},
-    {time:135,name:"IV — TRANSCENDENCE",colors:[35,190,270],power:1.55},
+    {time:80,name:"III — INFINITY",colors:[290,330,200],power:1.3},
+    {time:135,name:"IV — TRANSCENDENCE",colors:[35,190,270],power:1.5},
     {time:190,name:"V — BEYOND",colors:[190,220,300],power:1.7},
-    {time:250,name:"VI — ETERNITY",colors:[260,210,40],power:.85}
+    {time:250,name:"VI — ETERNITY",colors:[260,210,40],power:.9}
 ];
 
 function getPhase(seconds) {
@@ -408,235 +438,179 @@ function getPhase(seconds) {
     return result;
 }
 
-function mix(a,b,t) {
-    return a+(b-a)*t;
-}
-
-function drawStars() {
-    bctx.clearRect(0,0,width,height);
-
-    for(const s of stars) {
-        const pulse=.5+Math.sin(animationTime*s.speed)*.5;
-
-        bctx.beginPath();
-        bctx.arc(s.x,s.y,s.size,0,TAU);
-        bctx.fillStyle=`rgba(190,200,255,${s.alpha*pulse})`;
-        bctx.fill();
-
-        s.x-=s.speed*.15;
-
-        if(s.x<0) s.x=width;
-    }
-}
-
-// Multiple enormous, flowing nebula clouds
-function drawNebulae(phase,audio) {
+// Background color clouds
+function drawClouds(phase,audio) {
     ctx.save();
     ctx.globalCompositeOperation="screen";
 
-    for(let i=0;i<nebulae.length;i++) {
-        const n=nebulae[i];
+    for(let i=0;i<clouds.length;i++) {
+        const c=clouds[i];
         const hue=phase.colors[i%3];
-        const drift=animationTime*n.drift;
 
-        const x=n.x+Math.sin(drift+n.phase)*85;
-        const y=n.y+Math.cos(drift*.8+n.phase)*75;
-        const radius=n.radius*(1+audio.bass*.65+Math.sin(animationTime*.5+n.phase)*.12);
+        const x=c.x+Math.sin(animationTime*c.speed+c.phase)*100;
+        const y=c.y+Math.cos(animationTime*c.speed*.8+c.phase)*75;
+        const size=c.size*(1+audio.bass*.3);
 
-        const gradient=ctx.createRadialGradient(x,y,0,x,y,radius);
-        gradient.addColorStop(0,`hsla(${hue},100%,60%,${.09+audio.volume*.09})`);
-        gradient.addColorStop(.35,`hsla(${hue+35},100%,48%,.045)`);
-        gradient.addColorStop(1,"rgba(0,0,0,0)");
+        ctx.globalAlpha=.35+audio.volume*.3;
+        ctx.fillStyle=`hsl(${hue},100%,55%)`;
 
-        ctx.fillStyle=gradient;
-        ctx.fillRect(x-radius,y-radius,radius*2,radius*2);
+        ctx.drawImage(
+            cloudTexture,
+            x-size/2,
+            y-size/2,
+            size,
+            size
+        );
     }
 
     ctx.restore();
 }
 
-// Swirling particle galaxy
+// Swirling particles
 function drawParticles(phase,audio) {
     ctx.save();
     ctx.globalCompositeOperation="lighter";
 
-    const intensity=phase.power;
-
     for(const p of particles) {
-        p.angle+=p.speed*(1+audio.volume*4)*intensity;
+        p.angle+=p.speed*(1+audio.volume*5)*phase.power;
 
-        const radius=p.radius*(1+audio.bass*.2);
-        const distortion=Math.sin(animationTime*1.3+p.wave)*35;
+        const distortion=Math.sin(animationTime*1.5+p.wave)*30;
+        const radius=p.radius+distortion+audio.bass*35;
 
-        const spiral=radius+distortion;
-        const x=cx+Math.cos(p.angle)*spiral;
-        const y=cy+Math.sin(p.angle)*spiral*.68;
+        const x=cx+Math.cos(p.angle)*radius;
+        const y=cy+Math.sin(p.angle)*radius*.7;
 
-        const hue=phase.colors[Math.floor((p.hue/360)*3)%3]+p.hue*.15;
-        const size=p.size*(1+audio.treble*2);
+        const hue=phase.colors[Math.floor((p.angle/TAU*3+3)%3)];
+        const size=p.size+audio.treble*1.5;
 
         ctx.beginPath();
         ctx.arc(x,y,size,0,TAU);
-        ctx.fillStyle=`hsla(${hue},100%,70%,${p.alpha*.65})`;
-        ctx.shadowBlur=10+audio.volume*20;
-        ctx.shadowColor=`hsl(${hue},100%,65%)`;
+
+        ctx.fillStyle=`hsla(${hue},100%,72%,${p.alpha})`;
         ctx.fill();
     }
 
     ctx.restore();
 }
 
-// Curving light streams
+// Moving light streams
 function drawStreams(phase,audio) {
     ctx.save();
     ctx.globalCompositeOperation="lighter";
 
-    for(const s of streams) {
+    for(let i=0;i<streams.length;i++) {
+        const s=streams[i];
+
         s.angle+=s.speed*(1+audio.volume*3);
 
         const x=cx+Math.cos(s.angle)*s.radius;
         const y=cy+Math.sin(s.angle)*s.radius*.7;
 
-        const length=s.length*(1+audio.bass*1.8);
+        const length=s.length*(1+audio.bass);
 
         ctx.beginPath();
         ctx.moveTo(x,y);
+
         ctx.quadraticCurveTo(
-            cx+Math.cos(s.angle+1)*length*.6,
-            cy+Math.sin(s.angle+1)*length*.6,
+            cx+Math.cos(s.angle+1)*length*.5,
+            cy+Math.sin(s.angle+1)*length*.5,
             cx+Math.cos(s.angle+.7)*length,
             cy+Math.sin(s.angle+.7)*length
         );
 
-        const hue=phase.colors[Math.floor(Math.random()*phase.colors.length)];
+        const hue=phase.colors[i%3];
 
-        ctx.strokeStyle=`hsla(${hue},100%,70%,${.13+audio.volume*.25})`;
-        ctx.lineWidth=s.width+audio.bass*3;
-        ctx.shadowBlur=25;
-        ctx.shadowColor=`hsl(${hue},100%,65%)`;
+        ctx.strokeStyle=`hsla(${hue},100%,70%,.38)`;
+        ctx.lineWidth=1.5+audio.bass*2;
         ctx.stroke();
     }
 
     ctx.restore();
 }
 
-// Distorted, colorful expanding rings
+// Energy rings
 function drawRings(phase,audio) {
     ctx.save();
     ctx.translate(cx,cy);
     ctx.globalCompositeOperation="lighter";
 
-    const rotation=animationTime*.12;
+    const rotation=animationTime*.15;
 
-    for(let ring=0;ring<12;ring++) {
-        const base=45+ring*29+audio.bass*75;
+    for(let ring=0;ring<6;ring++) {
+        const base=50+ring*38+audio.bass*45;
         const hue=phase.colors[ring%3];
 
         ctx.beginPath();
 
-        for(let i=0;i<=360;i+=2) {
-            const angle=i*Math.PI/180;
+        // Fewer points = much less drawing work.
+        for(let i=0;i<=120;i++) {
+            const angle=i/120*TAU;
+
             const distortion=
-                Math.sin(angle*5+animationTime*1.5+ring)* (12+audio.bass*65)+
-                Math.sin(angle*11-animationTime*1.1)* (5+audio.mid*25);
+                Math.sin(angle*5+animationTime+ring)*(9+audio.bass*35)+
+                Math.sin(angle*8-animationTime)*6;
 
             const radius=base+distortion;
-
             const x=Math.cos(angle+rotation)*radius;
-            const y=Math.sin(angle+rotation)*radius*.78;
+            const y=Math.sin(angle+rotation)*radius*.8;
 
             if(i===0) ctx.moveTo(x,y);
             else ctx.lineTo(x,y);
         }
 
         ctx.closePath();
-        ctx.strokeStyle=`hsla(${hue},100%,70%,${.13+audio.volume*.22})`;
-        ctx.lineWidth=ring<3?1.7:1;
-        ctx.shadowBlur=22+audio.bass*30;
-        ctx.shadowColor=`hsl(${hue},100%,65%)`;
+
+        ctx.strokeStyle=`hsla(${hue},100%,70%,.3)`;
+        ctx.lineWidth=ring===0?2:1;
         ctx.stroke();
     }
 
     ctx.restore();
 }
 
-// Bright central energy
+// Central glow
 function drawCore(phase,audio) {
-    const pulse=1+audio.bass*2.5+Math.sin(animationTime*2)*.12;
-    const radius=24*pulse;
+    const radius=25+audio.bass*45+Math.sin(animationTime*2)*5;
 
-    const gradient=ctx.createRadialGradient(cx,cy,0,cx,cy,radius*9);
-    gradient.addColorStop(0,`hsla(${phase.colors[0]},100%,85%,${.4+audio.volume*.3})`);
-    gradient.addColorStop(.2,`hsla(${phase.colors[1]},100%,65%,.16)`);
-    gradient.addColorStop(.5,`hsla(${phase.colors[2]},100%,50%,.05)`);
+    const gradient=ctx.createRadialGradient(
+        cx,cy,0,
+        cx,cy,radius*7
+    );
+
+    gradient.addColorStop(0,`hsla(${phase.colors[0]},100%,80%,.5)`);
+    gradient.addColorStop(.25,`hsla(${phase.colors[1]},100%,60%,.2)`);
     gradient.addColorStop(1,"rgba(0,0,0,0)");
 
-    ctx.save();
-    ctx.globalCompositeOperation="screen";
     ctx.fillStyle=gradient;
     ctx.beginPath();
-    ctx.arc(cx,cy,radius*9,0,TAU);
+    ctx.arc(cx,cy,radius*7,0,TAU);
     ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(cx,cy,radius,0,TAU);
-    ctx.fillStyle=`hsla(${phase.colors[0]},100%,80%,.22)`;
-    ctx.shadowBlur=70+audio.bass*100;
-    ctx.shadowColor=`hsl(${phase.colors[0]},100%,65%)`;
-    ctx.fill();
-    ctx.restore();
 }
 
-// Additional sweeping light rays
-function drawRays(phase,audio) {
-    ctx.save();
-    ctx.translate(cx,cy);
-    ctx.rotate(animationTime*.035);
-    ctx.globalCompositeOperation="screen";
-
-    for(let i=0;i<30;i++) {
-        const angle=i*TAU/30;
-        const length=Math.max(width,height)*(.25+audio.treble*.2);
-
-        ctx.beginPath();
-        ctx.moveTo(Math.cos(angle)*50,Math.sin(angle)*50);
-        ctx.lineTo(Math.cos(angle)*length,Math.sin(angle)*length);
-
-        ctx.strokeStyle=`hsla(${phase.colors[i%3]},100%,70%,${.025+audio.treble*.07})`;
-        ctx.lineWidth=1;
-        ctx.stroke();
-    }
-
-    ctx.restore();
-}
-
-let lastFrame=0;
-
+// Main animation loop: capped at 30 FPS.
 function draw(timestamp) {
     requestAnimationFrame(draw);
 
-    if(!started || paused) {
-        lastFrame=timestamp;
-        return;
-    }
+    if(!started || paused) return;
 
-    const delta=Math.min((timestamp-lastFrame)/16.67,2);
+    if(timestamp-lastFrame<FRAME_TIME) return;
+
+    const delta=lastFrame ? Math.min((timestamp-lastFrame)/16.67,2) : 1;
     lastFrame=timestamp;
+
     animationTime+=.016*delta;
 
     const seconds=music.currentTime||0;
     const phase=getPhase(seconds);
-    const audio=readAudio();
+    const audio=getAudio();
 
     ctx.clearRect(0,0,width,height);
 
-    drawNebulae(phase,audio);
-    drawRays(phase,audio);
+    drawClouds(phase,audio);
     drawRings(phase,audio);
     drawStreams(phase,audio);
     drawParticles(phase,audio);
     drawCore(phase,audio);
-    drawStars();
 
     document.getElementById("phase").textContent=phase.name;
 
@@ -673,7 +647,6 @@ async function begin() {
     setTimeout(()=>intro.style.display="none",2000);
 
     hud.classList.add("visible");
-    requestAnimationFrame(draw);
 }
 
 document.getElementById("startButton").addEventListener("click",begin);
@@ -682,10 +655,13 @@ document.getElementById("pauseButton").addEventListener("click",async()=>{
     if(!started) return;
 
     if(paused) {
-        await music.play();
-        paused=false;
-        document.getElementById("pauseButton").textContent="Ⅱ";
-        requestAnimationFrame(draw);
+        try {
+            await music.play();
+            paused=false;
+            document.getElementById("pauseButton").textContent="Ⅱ";
+        } catch(error) {
+            console.error(error);
+        }
     } else {
         music.pause();
         paused=true;
@@ -705,10 +681,13 @@ document.getElementById("restartButton").addEventListener("click",async()=>{
     music.currentTime=0;
 
     if(paused) {
-        await music.play();
-        paused=false;
-        document.getElementById("pauseButton").textContent="Ⅱ";
-        requestAnimationFrame(draw);
+        try {
+            await music.play();
+            paused=false;
+            document.getElementById("pauseButton").textContent="Ⅱ";
+        } catch(error) {
+            console.error(error);
+        }
     }
 });
 
@@ -717,7 +696,8 @@ music.addEventListener("ended",()=>{
     document.getElementById("pauseButton").textContent="▶";
 });
 
-drawStars();
+requestAnimationFrame(draw);
 </script>
+
 </body>
 </html>
