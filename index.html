@@ -4,12 +4,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>INTERSTELLAR — Beyond the Known</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+<title>INTERSTELLAR — Visual Experience</title>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -17,1076 +16,573 @@
 }
 
 body {
-    background: #020306;
+    background: #020207;
     color: white;
     font-family: 'Montserrat', sans-serif;
     overflow: hidden;
+    height: 100vh;
 }
 
-#stars {
+canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#background {
+    z-index: 0;
+}
+
+#visualizer {
+    z-index: 1;
+}
+
+.vignette {
     position: fixed;
     inset: 0;
     z-index: 2;
     pointer-events: none;
+    background: radial-gradient(circle, transparent 25%, rgba(0,0,0,.45) 100%);
 }
 
-.scene {
+.intro {
     position: fixed;
     inset: 0;
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 2.5s ease, visibility 2.5s;
-    background: #03050a;
-}
-
-.scene.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.scene::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-        to bottom,
-        rgba(0,0,0,.1),
-        rgba(0,0,0,.1) 35%,
-        rgba(0,0,0,.65) 75%,
-        #020306 100%
-    );
-    z-index: 3;
-    pointer-events: none;
-}
-
-/* SCENE CONTENT */
-
-.scene-content {
-    position: absolute;
     z-index: 5;
-    left: 10%;
-    bottom: 15%;
-    max-width: 650px;
-    padding-right: 25px;
-}
-
-.scene-number {
-    color: #c3a982;
-    font-size: 9px;
-    letter-spacing: 6px;
-    margin-bottom: 25px;
-}
-
-.scene-title {
-    font-size: clamp(35px, 6vw, 76px);
-    font-weight: 200;
-    letter-spacing: 10px;
-    margin-bottom: 28px;
-}
-
-.scene-text {
-    color: rgba(255,255,255,.72);
-    font-size: 12px;
-    line-height: 2.3;
-    letter-spacing: 1px;
-    max-width: 570px;
-}
-
-.scene-text p + p {
-    margin-top: 15px;
-}
-
-.scene.active .scene-content {
-    animation: contentEnter 2.5s ease both;
-}
-
-@keyframes contentEnter {
-    from {
-        opacity: 0;
-        transform: translateY(35px);
-        filter: blur(5px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-        filter: blur(0);
-    }
-}
-
-/* PROGRESS */
-
-.progress {
-    position: fixed;
-    top: 35px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 20;
     display: flex;
-    gap: 8px;
-}
-
-.progress span {
-    width: 28px;
-    height: 2px;
-    background: rgba(255,255,255,.2);
-    transition: background 1s;
-}
-
-.progress span.done {
-    background: #c6a879;
-}
-
-.scene-counter {
-    position: fixed;
-    top: 30px;
-    right: 35px;
-    z-index: 20;
-    color: rgba(255,255,255,.4);
-    font-size: 9px;
-    letter-spacing: 3px;
-}
-
-/* EARTH */
-
-.earth-scene {
-    background:
-        linear-gradient(rgba(0,0,0,.1),rgba(0,0,0,.3)),
-        #15130f;
-}
-
-.earth {
-    position: absolute;
-    width: min(90vw, 850px);
-    aspect-ratio: 1;
-    border-radius: 50%;
-    left: 50%;
-    top: 35%;
-    transform: translate(-50%,-50%);
-    background:
-        radial-gradient(ellipse at 35% 35%,
-            #c0a17a,
-            #76634d 30%,
-            #34312d 55%,
-            #11131a 75%,
-            #020306 100%);
-    box-shadow:
-        0 0 90px rgba(181,142,96,.18),
-        inset -90px -30px 120px #000;
-    animation: earthMove 35s ease-in-out infinite alternate;
-}
-
-.earth::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background:
-        repeating-linear-gradient(
-            160deg,
-            transparent 0 30px,
-            rgba(225,205,165,.08) 32px 38px,
-            transparent 45px 80px
-        );
-    opacity: .7;
-}
-
-.earth::after {
-    content: "";
-    position: absolute;
-    inset: -10%;
-    border-radius: 50%;
-    background: radial-gradient(
-        ellipse at 35% 40%,
-        transparent 40%,
-        rgba(0,0,0,.75) 75%
-    );
-}
-
-@keyframes earthMove {
-    from { transform: translate(-50%,-50%) scale(1); }
-    to { transform: translate(-48%,-47%) scale(1.2); }
-}
-
-.dust {
-    position: absolute;
-    inset: 0;
-    background:
-        radial-gradient(ellipse at 30% 80%,rgba(174,130,75,.22),transparent 45%),
-        radial-gradient(ellipse at 75% 70%,rgba(120,98,65,.2),transparent 40%);
-    animation: dustMove 20s ease-in-out infinite alternate;
-}
-
-@keyframes dustMove {
-    to { transform: translateX(-70px) scale(1.15); }
-}
-
-/* SPACE */
-
-.space-scene {
-    background: radial-gradient(ellipse at center,#142037,#03050a 70%);
-}
-
-.ship {
-    position: absolute;
-    width: 260px;
-    height: 260px;
-    left: 50%;
-    top: 35%;
-    transform: translate(-50%,-50%);
-    border: 2px solid rgba(205,211,222,.55);
-    border-radius: 50%;
-    box-shadow:
-        0 0 25px rgba(200,210,230,.15),
-        inset 0 0 35px rgba(200,210,230,.15);
-    animation: shipTravel 22s ease-in-out infinite alternate;
-}
-
-.ship::before {
-    content: "";
-    position: absolute;
-    width: 65%;
-    height: 65%;
-    left: 17.5%;
-    top: 17.5%;
-    border: 1px solid rgba(255,255,255,.6);
-    border-radius: 50%;
-}
-
-.ship::after {
-    content: "";
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: white;
-    box-shadow: 0 0 25px 8px rgba(255,255,255,.6);
-    left: 49%;
-    top: 49%;
-}
-
-@keyframes shipTravel {
-    from { transform: translate(-50%,-50%) scale(.5) rotate(0deg); }
-    to { transform: translate(-50%,-50%) scale(1.4) rotate(35deg); }
-}
-
-/* WORMHOLE */
-
-.wormhole-scene {
-    background: radial-gradient(ellipse at center,#263449,#070a13 70%);
-}
-
-.wormhole {
-    position: absolute;
-    width: min(70vw,700px);
-    height: min(35vw,350px);
-    min-height: 190px;
-    border-radius: 50%;
-    left: 50%;
-    top: 35%;
-    transform: translate(-50%,-50%) rotate(-12deg);
-    border: 15px solid rgba(213,196,158,.45);
-    box-shadow:
-        0 0 25px #d6c39e,
-        0 0 65px rgba(175,191,216,.7),
-        inset 0 0 55px #d6c39e;
-    animation: wormholePulse 8s ease-in-out infinite alternate;
-}
-
-.wormhole::before {
-    content: "";
-    position: absolute;
-    inset: 12%;
-    border-radius: 50%;
-    border: 2px solid rgba(255,255,255,.7);
-    box-shadow: 0 0 35px white;
-}
-
-.wormhole::after {
-    content: "";
-    position: absolute;
-    inset: 25%;
-    border-radius: 50%;
-    background: #020307;
-    box-shadow: 0 0 50px #000;
-}
-
-@keyframes wormholePulse {
-    from { transform: translate(-50%,-50%) rotate(-12deg) scale(.9); }
-    to { transform: translate(-50%,-50%) rotate(-5deg) scale(1.1); }
-}
-
-/* MILLER'S PLANET */
-
-.miller-scene {
-    background: linear-gradient(#15232f,#61717b 55%,#1b2b34);
-}
-
-.miller-horizon {
-    position: absolute;
-    left: -10%;
-    width: 120%;
-    height: 65%;
-    bottom: -12%;
-    background: linear-gradient(
-        to bottom,
-        #506d78,
-        #263d49 35%,
-        #10212c
-    );
-    border-radius: 50% 50% 0 0;
-    animation: oceanMove 12s ease-in-out infinite alternate;
-}
-
-.wave {
-    position: absolute;
-    width: 150%;
-    height: 170px;
-    left: -25%;
-    bottom: 15%;
-    border-radius: 50%;
-    border-top: 5px solid rgba(210,231,238,.35);
-    box-shadow: 0 -15px 35px rgba(190,222,236,.12);
-    animation: waveMove 8s ease-in-out infinite alternate;
-}
-
-.wave.two {
-    bottom: 28%;
-    animation-delay: -3s;
-    opacity: .5;
-}
-
-@keyframes waveMove {
-    from { transform: translateX(-8%) scaleY(.8); }
-    to { transform: translateX(8%) scaleY(1.5); }
-}
-
-@keyframes oceanMove {
-    to { transform: translateY(-40px); }
-}
-
-/* MANN'S PLANET */
-
-.mann-scene {
-    background:
-        linear-gradient(to bottom,rgba(15,26,39,.2),rgba(0,0,0,.3)),
-        linear-gradient(#8294a1,#3c5366 55%,#172c40);
-}
-
-.ice-mountain {
-    position: absolute;
-    bottom: -10%;
-    width: 0;
-    height: 0;
-    border-left: 300px solid transparent;
-    border-right: 300px solid transparent;
-    border-bottom: 450px solid #b7c8d0;
-    filter: drop-shadow(0 0 30px rgba(255,255,255,.2));
-    opacity: .65;
-    animation: mountainMove 30s ease-in-out infinite alternate;
-}
-
-.ice-mountain.one {
-    left: 5%;
-}
-
-.ice-mountain.two {
-    right: -5%;
-    transform: scale(.8);
-    border-bottom-color: #718999;
-}
-
-.ice-ground {
-    position: absolute;
-    bottom: -15%;
-    height: 40%;
-    width: 120%;
-    left: -10%;
-    background: linear-gradient(#c5d2d8,#526a7b);
-    transform: rotate(-5deg);
-}
-
-@keyframes mountainMove {
-    to { transform: translateX(-50px) scale(1.08); }
-}
-
-/* FIFTH DIMENSION */
-
-.tesseract-scene {
-    background: radial-gradient(ellipse at center,#1a1c28,#020306 75%);
-}
-
-.tesseract {
-    position: absolute;
-    width: 280px;
-    height: 280px;
-    left: 50%;
-    top: 35%;
-    transform: translate(-50%,-50%);
-    perspective: 900px;
-    animation: tessCamera 20s ease-in-out infinite alternate;
-}
-
-.tess-box {
-    position: absolute;
-    inset: 0;
-    border: 1px solid rgba(220,210,185,.7);
-    transform: rotateX(55deg) rotateY(45deg);
-    box-shadow: 0 0 25px rgba(211,194,158,.25);
-}
-
-.tess-box:nth-child(2) {
-    inset: 20px;
-    transform: rotateX(55deg) rotateY(-45deg);
-}
-
-.tess-box:nth-child(3) {
-    inset: 40px;
-    transform: rotateX(45deg) rotateY(45deg);
-}
-
-.tess-box:nth-child(4) {
-    inset: 60px;
-    transform: rotateX(55deg) rotateY(-45deg);
-}
-
-.tess-lines {
-    position: absolute;
-    inset: -80%;
-    background:
-        repeating-linear-gradient(
-            90deg,
-            transparent 0 65px,
-            rgba(207,193,166,.12) 66px 67px
-        ),
-        repeating-linear-gradient(
-            0deg,
-            transparent 0 65px,
-            rgba(207,193,166,.12) 66px 67px
-        );
-    transform: perspective(500px) rotateX(65deg);
-    mask-image: radial-gradient(ellipse,black,transparent 70%);
-}
-
-@keyframes tessCamera {
-    from { transform: translate(-50%,-50%) scale(.65) rotate(0); }
-    to { transform: translate(-50%,-50%) scale(1.2) rotate(12deg); }
-}
-
-/* ENDING */
-
-.ending {
-    position: fixed;
-    inset: 0;
-    background: #020306;
-    z-index: 30;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     flex-direction: column;
-    text-align: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 3s, visibility 3s;
-    padding: 25px;
+    align-items: center;
+    justify-content: center;
+    background: #020207;
+    transition: opacity 2s ease;
 }
 
-.ending.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.ending h1 {
-    font-size: clamp(30px,7vw,85px);
+.intro h1 {
+    font-size: clamp(35px, 7vw, 76px);
     font-weight: 200;
-    letter-spacing: 13px;
-    margin-bottom: 30px;
+    letter-spacing: .42em;
+    padding-left: .42em;
+    opacity: 0;
+    animation: reveal 4s ease forwards;
 }
 
-.ending p {
-    font-size: 11px;
-    letter-spacing: 3px;
-    line-height: 2.5;
-    color: rgba(255,255,255,.5);
+.intro p {
+    font-size: 10px;
+    letter-spacing: .45em;
+    color: #777b94;
+    margin-top: 22px;
+    opacity: 0;
+    animation: reveal 3s ease 1.5s forwards;
 }
 
-.ending button {
-    margin-top: 45px;
-    padding: 17px 35px;
-    border: 1px solid rgba(255,255,255,.4);
+.start {
+    margin-top: 65px;
     background: transparent;
+    border: 1px solid rgba(255,255,255,.35);
     color: white;
+    padding: 15px 34px;
     font-family: inherit;
-    font-size: 9px;
-    letter-spacing: 5px;
+    font-size: 10px;
+    letter-spacing: .35em;
     cursor: pointer;
     transition: .4s;
-}
-
-.ending button:hover {
-    background: white;
-    color: black;
-}
-
-/* START */
-
-.start-screen {
-    position: fixed;
-    inset: 0;
-    z-index: 50;
-    background: #020306;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    gap: 25px;
-    transition: opacity 2s, visibility 2s;
-}
-
-.start-screen.hide {
     opacity: 0;
-    visibility: hidden;
+    animation: reveal 2s ease 3s forwards;
 }
 
-.start-screen p {
-    font-size: 9px;
-    letter-spacing: 7px;
-    color: rgba(255,255,255,.5);
-}
-
-.start-screen button {
-    padding: 18px 35px;
-    background: transparent;
-    border: 1px solid rgba(255,255,255,.4);
-    color: white;
-    font-family: inherit;
-    font-size: 9px;
-    letter-spacing: 5px;
-    cursor: pointer;
-}
-
-.start-screen button:hover {
+.start:hover {
     background: white;
     color: black;
+    box-shadow: 0 0 35px rgba(255,255,255,.3);
 }
 
-/* SOUND */
+@keyframes reveal {
+    to { opacity: 1; }
+}
 
-.sound {
+.hud {
     position: fixed;
-    bottom: 25px;
-    right: 30px;
-    z-index: 25;
-    background: none;
-    border: none;
-    color: rgba(255,255,255,.6);
-    font-family: inherit;
-    font-size: 9px;
-    letter-spacing: 3px;
-    cursor: pointer;
-    display: none;
+    z-index: 3;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 3s;
 }
 
-.sound.show {
-    display: block;
+.hud.visible {
+    opacity: 1;
+}
+
+.logo {
+    position: absolute;
+    top: 35px;
+    left: 42px;
+    font-size: 11px;
+    letter-spacing: .4em;
+    font-weight: 300;
+}
+
+.track {
+    position: absolute;
+    bottom: 42px;
+    left: 42px;
+}
+
+.track-name {
+    font-size: 11px;
+    letter-spacing: .25em;
+    margin-bottom: 9px;
+}
+
+.track-sub {
+    color: #777b94;
+    font-size: 9px;
+    letter-spacing: .2em;
+}
+
+.phase {
+    position: absolute;
+    top: 38px;
+    right: 42px;
+    font-size: 9px;
+    color: #8d91a9;
+    letter-spacing: .3em;
+}
+
+.controls {
+    position: absolute;
+    bottom: 38px;
+    right: 42px;
+    display: flex;
+    gap: 18px;
+    pointer-events: auto;
+}
+
+.controls button {
+    color: rgba(255,255,255,.7);
+    background: transparent;
+    border: none;
+    font-size: 17px;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.controls button:hover {
+    color: white;
+    text-shadow: 0 0 15px white;
+}
+
+.progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    background: rgba(255,255,255,.15);
+    width: 100%;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: rgba(255,255,255,.7);
+}
+
+.time {
+    position: absolute;
+    bottom: 72px;
+    right: 42px;
+    color: #777b94;
+    font-size: 9px;
+    letter-spacing: .15em;
 }
 
 @media(max-width:600px) {
-    .scene-content {
-        left: 7%;
-        right: 7%;
-        bottom: 13%;
-    }
-
-    .scene-title {
-        letter-spacing: 5px;
-    }
-
-    .scene-text {
-        font-size: 11px;
-    }
-
-    .progress span {
-        width: 17px;
-    }
-
-    .scene-counter {
-        right: 12px;
-        top: 60px;
-    }
-
-    .earth {
-        width: 120vw;
-    }
+    .logo { left: 20px; top: 22px; }
+    .phase { right: 20px; top: 25px; }
+    .track { left: 20px; bottom: 65px; }
+    .controls { right: 20px; bottom: 22px; }
+    .time { right: 20px; bottom: 53px; }
 }
-
 </style>
 </head>
 
 <body>
 
-<canvas id="stars"></canvas>
+<canvas id="background"></canvas>
+<canvas id="visualizer"></canvas>
+<div class="vignette"></div>
 
-<div class="progress" id="progress">
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-</div>
-
-<div class="scene-counter" id="counter">01 / 06</div>
-
-<!-- 01 EARTH -->
-
-<section class="scene earth-scene active" id="scene0">
-
-    <div class="earth"></div>
-    <div class="dust"></div>
-
-    <div class="scene-content">
-        <div class="scene-number">01 — THE BEGINNING</div>
-
-        <h1 class="scene-title">EARTH</h1>
-
-        <div class="scene-text">
-            <p>
-                There was a time when humanity looked toward
-                the stars and wondered what waited beyond them.
-            </p>
-            <p>
-                But the world beneath our feet was changing.
-                Dust storms consumed the land. Crops began to fail.
-                The future of humanity was becoming uncertain.
-            </p>
-            <p>
-                Earth had given us everything.
-                But could it continue to sustain us?
-            </p>
-        </div>
-    </div>
-
-</section>
-
-<!-- 02 THE MISSION -->
-
-<section class="scene space-scene" id="scene1">
-
-    <div class="ship"></div>
-
-    <div class="scene-content">
-        <div class="scene-number">02 — THE UNKNOWN</div>
-
-        <h1 class="scene-title">THE MISSION</h1>
-
-        <div class="scene-text">
-            <p>
-                Humanity's survival depended on something
-                greater than the world it knew.
-            </p>
-            <p>
-                Beyond Earth, a mission was already underway.
-                A journey into the unknown, searching for a place
-                where humanity could begin again.
-            </p>
-            <p>
-                But the distance between worlds was only
-                the beginning of the challenge.
-            </p>
-        </div>
-    </div>
-
-</section>
-
-<!-- 03 WORMHOLE -->
-
-<section class="scene wormhole-scene" id="scene2">
-
-    <div class="wormhole"></div>
-
-    <div class="scene-content">
-        <div class="scene-number">03 — BEYOND OUR GALAXY</div>
-
-        <h1 class="scene-title">THE WORMHOLE</h1>
-
-        <div class="scene-text">
-            <p>
-                Near Saturn, something extraordinary had appeared.
-                A passage through space itself.
-            </p>
-            <p>
-                A wormhole — a bridge connecting distant regions
-                of the universe. What would take thousands of years
-                to cross could now become possible.
-            </p>
-            <p>
-                On the other side was a galaxy filled with
-                possibilities. And unimaginable dangers.
-            </p>
-        </div>
-    </div>
-
-</section>
-
-<!-- 04 MILLER'S PLANET -->
-
-<section class="scene miller-scene" id="scene3">
-
-    <div class="miller-horizon"></div>
-    <div class="wave"></div>
-    <div class="wave two"></div>
-
-    <div class="scene-content">
-        <div class="scene-number">04 — THE FIRST WORLD</div>
-
-        <h1 class="scene-title">MILLER'S PLANET</h1>
-
-        <div class="scene-text">
-            <p>
-                A world covered in endless water, orbiting
-                dangerously close to an enormous black hole.
-            </p>
-            <p>
-                Here, time behaved differently.
-                One hour on this planet was equivalent to
-                seven years back on Earth.
-            </p>
-            <p>
-                Every second mattered. Every decision carried
-                a cost that could not be undone.
-            </p>
-        </div>
-    </div>
-
-</section>
-
-<!-- 05 MANN'S PLANET -->
-
-<section class="scene mann-scene" id="scene4">
-
-    <div class="ice-mountain one"></div>
-    <div class="ice-mountain two"></div>
-    <div class="ice-ground"></div>
-
-    <div class="scene-content">
-        <div class="scene-number">05 — THE FROZEN WORLD</div>
-
-        <h1 class="scene-title">MANN'S PLANET</h1>
-
-        <div class="scene-text">
-            <p>
-                Far from the warmth of Earth was another world.
-                A frozen landscape, seemingly untouched by life.
-            </p>
-            <p>
-                It was believed to hold the answer to humanity's
-                survival. But the truth was far more complicated
-                than anyone could have imagined.
-            </p>
-            <p>
-                Sometimes, the greatest danger is not the
-                universe around us. It is ourselves.
-            </p>
-        </div>
-    </div>
-
-</section>
-
-<!-- 06 FIFTH DIMENSION -->
-
-<section class="scene tesseract-scene" id="scene5">
-
-    <div class="tess-lines"></div>
-
-    <div class="tesseract">
-        <div class="tess-box"></div>
-        <div class="tess-box"></div>
-        <div class="tess-box"></div>
-        <div class="tess-box"></div>
-    </div>
-
-    <div class="scene-content">
-        <div class="scene-number">06 — BEYOND TIME</div>
-
-        <h1 class="scene-title">THE FIFTH DIMENSION</h1>
-
-        <div class="scene-text">
-            <p>
-                What if time was not simply something we moved
-                through, but something we could see?
-            </p>
-            <p>
-                Beyond the familiar dimensions of space and time
-                existed something extraordinary. A place where
-                moments could be explored, connected, and reached
-                in ways we could never have imagined.
-            </p>
-            <p>
-                Perhaps the universe was never as simple
-                as we believed.
-            </p>
-        </div>
-    </div>
-
-</section>
-
-<!-- ENDING -->
-
-<section class="ending" id="ending">
-
+<div class="intro" id="intro">
     <h1>INTERSTELLAR</h1>
-
-    <p>
-        SPACE. TIME. HUMANITY.
-        <br>
-        THE JOURNEY IS ONLY BEGINNING.
-    </p>
-
-    <button onclick="restartJourney()">
-        EXPERIENCE AGAIN
-    </button>
-
-    <button onclick="enterUniverse()">
-        EXPLORE THE UNIVERSE
-    </button>
-
-</section>
-
-<!-- START SCREEN -->
-
-<div class="start-screen" id="startScreen">
-
-    <p>A JOURNEY THROUGH SPACE AND TIME</p>
-
-    <button onclick="beginJourney()">
-        BEGIN JOURNEY
-    </button>
-
+    <p>A MUSICAL VISUAL EXPERIENCE</p>
+    <button class="start" id="startButton">ENTER THE EXPERIENCE</button>
 </div>
 
-<button class="sound" id="sound" onclick="toggleSound()">
-    SOUND: ON
-</button>
+<div class="hud" id="hud">
+    <div class="logo">INTERSTELLAR</div>
+    <div class="phase" id="phase">I — AWAKENING</div>
 
-<audio
-    id="music"
-    src="assets/Hans_Zimmer_-_Interstellar_Main_Theme_OST_INTERSTELLER_(mp3.pm)%20(1).mp3"
-    loop
-    preload="auto">
+    <div class="track">
+        <div class="track-name">MAIN THEME</div>
+        <div class="track-sub">HANS ZIMMER</div>
+    </div>
+
+    <div class="time" id="time">00:00</div>
+
+    <div class="controls">
+        <button id="pauseButton" title="Pause / Play">Ⅱ</button>
+        <button id="restartButton" title="Restart">↺</button>
+        <button id="muteButton" title="Mute">♪</button>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+</div>
+
+<audio id="music" preload="auto">
+    <source src="assets/Hans_Zimmer_-_Interstellar_Main_Theme_OST_INTERSTELLER_(mp3.pm)%20(1).mp3" type="audio/mpeg">
 </audio>
 
 <script>
-
-// STARS
-
-const canvas = document.getElementById("stars");
+const bg = document.getElementById("background");
+const canvas = document.getElementById("visualizer");
+const bctx = bg.getContext("2d");
 const ctx = canvas.getContext("2d");
 
+const music = document.getElementById("music");
+const intro = document.getElementById("intro");
+const hud = document.getElementById("hud");
+
+let width, height, cx, cy;
+let started = false;
+let muted = false;
+let paused = false;
+let animationTime = 0;
+let startTime = 0;
+let analyser, audioContext, source;
+let frequencyData;
+let particles = [];
 let stars = [];
 
-function resizeStars() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+function resize() {
+    width = bg.width = canvas.width = window.innerWidth;
+    height = bg.height = canvas.height = window.innerHeight;
+    cx = width / 2;
+    cy = height / 2;
 
+    createStars();
+    createParticles();
+}
+
+window.addEventListener("resize", resize);
+
+function random(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+function createStars() {
     stars = [];
 
-    for (let i = 0; i < 250; i++) {
+    for (let i = 0; i < 350; i++) {
         stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            size: Math.random() * 1.4,
-            speed: Math.random() * .3 + .05,
-            opacity: Math.random()
+            x: Math.random() * width,
+            y: Math.random() * height,
+            size: random(.3, 1.5),
+            alpha: random(.1, .8),
+            speed: random(.001, .008)
         });
     }
 }
 
-function drawStars() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+function createParticles() {
+    particles = [];
 
-    stars.forEach(star => {
-        star.opacity += (Math.random() - .5) * .015;
-        star.opacity = Math.max(.2, Math.min(1, star.opacity));
-
-        ctx.fillStyle = `rgba(255,255,255,${star.opacity})`;
-
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-        ctx.fill();
-
-        star.y -= star.speed;
-
-        if (star.y < 0) {
-            star.y = canvas.height;
-            star.x = Math.random() * canvas.width;
-        }
-    });
-
-    requestAnimationFrame(drawStars);
-}
-
-window.addEventListener("resize", resizeStars);
-
-resizeStars();
-drawStars();
-
-// MUSIC
-
-const music = document.getElementById("music");
-
-let soundEnabled = true;
-let fadeTimer = null;
-
-function fadeMusic(target, duration) {
-    clearInterval(fadeTimer);
-
-    const start = music.volume;
-    const difference = target - start;
-    const steps = 100;
-    let count = 0;
-
-    fadeTimer = setInterval(() => {
-        count++;
-
-        music.volume = Math.max(0, Math.min(1,
-            start + difference * count / steps
-        ));
-
-        if (count >= steps) {
-            clearInterval(fadeTimer);
-            music.volume = target;
-
-            if (target === 0) music.pause();
-        }
-    }, duration / steps);
-}
-
-function toggleSound() {
-    const button = document.getElementById("sound");
-
-    soundEnabled = !soundEnabled;
-
-    if (soundEnabled) {
-        music.play().then(() => {
-            fadeMusic(.65, 2500);
-        }).catch(() => {});
-
-        button.textContent = "SOUND: ON";
-    } else {
-        fadeMusic(0, 2000);
-        button.textContent = "SOUND: OFF";
+    for (let i = 0; i < 240; i++) {
+        particles.push({
+            angle: random(0, Math.PI * 2),
+            radius: random(30, Math.max(width, height) * .65),
+            speed: random(.0002, .001),
+            size: random(.5, 2),
+            offset: random(0, 100),
+            alpha: random(.15, .8)
+        });
     }
 }
 
-// CUTSCENE
+resize();
 
-const sceneCount = 6;
+function getAudioLevel() {
+    if (!analyser || !frequencyData || muted) return 0;
 
-// Time each scene stays on screen, in milliseconds.
-// Increase these values if you want more reading time.
+    analyser.getByteFrequencyData(frequencyData);
 
-const sceneDurations = [
-    16000,
-    15000,
-    15000,
-    18000,
-    16000,
-    18000
+    let total = 0;
+    for (let i = 0; i < frequencyData.length; i++) {
+        total += frequencyData[i];
+    }
+
+    return total / frequencyData.length / 255;
+}
+
+function getBass() {
+    if (!analyser || !frequencyData || muted) return 0;
+
+    analyser.getByteFrequencyData(frequencyData);
+
+    let total = 0;
+    for (let i = 0; i < 12; i++) {
+        total += frequencyData[i];
+    }
+
+    return total / 12 / 255;
+}
+
+function getTreble() {
+    if (!analyser || !frequencyData || muted) return 0;
+
+    analyser.getByteFrequencyData(frequencyData);
+
+    let total = 0;
+    for (let i = 25; i < 100; i++) {
+        total += frequencyData[i] || 0;
+    }
+
+    return total / 75 / 255;
+}
+
+// Automatic visual progression
+const phases = [
+    { time: 0, name: "I — AWAKENING", color: [70, 85, 155], intensity: .45 },
+    { time: 35, name: "II — ASCENSION", color: [90, 75, 180], intensity: .7 },
+    { time: 80, name: "III — INFINITY", color: [160, 105, 190], intensity: 1 },
+    { time: 135, name: "IV — BEYOND", color: [190, 145, 105], intensity: 1.3 },
+    { time: 190, name: "V — TRANSCENDENCE", color: [120, 160, 220], intensity: 1.5 },
+    { time: 250, name: "VI — ETERNITY", color: [210, 190, 155], intensity: .85 }
 ];
 
-let currentScene = 0;
-let sceneTimer = null;
-let journeyStarted = false;
+function getPhase(seconds) {
+    let selected = phases[0];
 
-function showScene(index) {
-    document.querySelectorAll(".scene").forEach(scene => {
-        scene.classList.remove("active");
-    });
-
-    document.getElementById("scene" + index).classList.add("active");
-
-    document.querySelectorAll(".progress span").forEach((bar, i) => {
-        bar.classList.toggle("done", i <= index);
-    });
-
-    document.getElementById("counter").textContent =
-        String(index + 1).padStart(2, "0") + " / 06";
-
-    currentScene = index;
-
-    sceneTimer = setTimeout(() => {
-        if (index < sceneCount - 1) {
-            showScene(index + 1);
-        } else {
-            finishJourney();
-        }
-    }, sceneDurations[index]);
-}
-
-async function beginJourney() {
-    if (journeyStarted) return;
-
-    journeyStarted = true;
-
-    document.getElementById("startScreen").classList.add("hide");
-    document.getElementById("sound").classList.add("show");
-
-    if (soundEnabled) {
-        try {
-            music.volume = 0;
-            await music.play();
-            fadeMusic(.65, 12000);
-        } catch (error) {
-            console.log("Audio could not start:", error);
-        }
+    for (const p of phases) {
+        if (seconds >= p.time) selected = p;
     }
 
-    showScene(0);
+    return selected;
 }
 
-// ENDING
+function drawStars() {
+    bctx.clearRect(0, 0, width, height);
 
-function finishJourney() {
-    document.querySelectorAll(".scene").forEach(scene => {
-        scene.classList.remove("active");
-    });
+    for (const star of stars) {
+        const pulse = Math.sin(animationTime * star.speed * 60) * .25;
 
-    document.getElementById("counter").style.display = "none";
-    document.getElementById("progress").style.display = "none";
-
-    document.getElementById("ending").classList.add("active");
+        bctx.beginPath();
+        bctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        bctx.fillStyle = `rgba(190,200,255,${Math.max(.05, star.alpha + pulse)})`;
+        bctx.fill();
+    }
 }
 
-function restartJourney() {
-    clearTimeout(sceneTimer);
+function drawParticles(phase, level) {
+    const color = phase.color;
 
-    document.getElementById("ending").classList.remove("active");
+    for (const p of particles) {
+        p.angle += p.speed * (1 + level * 4);
 
-    document.getElementById("counter").style.display = "block";
-    document.getElementById("progress").style.display = "flex";
+        const wave = Math.sin(animationTime * .4 + p.offset) * 25;
+        const radius = p.radius + wave + level * 35;
 
-    journeyStarted = false;
+        const x = cx + Math.cos(p.angle) * radius;
+        const y = cy + Math.sin(p.angle) * radius * .62;
 
-    beginJourney();
+        ctx.beginPath();
+        ctx.arc(x, y, p.size + level * 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},${p.alpha * phase.intensity})`;
+        ctx.fill();
+    }
 }
 
-// NEXT PART OF THE WEBSITE
+function drawWaves(phase, level, bass) {
+    const color = phase.color;
 
-function enterUniverse() {
-    // We'll build the actual exploration interface here next.
-    document.getElementById("ending").classList.remove("active");
+    for (let ring = 0; ring < 7; ring++) {
+        ctx.beginPath();
 
-    setTimeout(() => {
-        document.getElementById("ending").innerHTML = `
-            <h1>THE UNIVERSE</h1>
-            <p>YOUR JOURNEY BEYOND THE KNOWN BEGINS HERE.</p>
-        `;
+        const baseRadius = 65 + ring * 39;
+        const rotation = animationTime * (.08 + ring * .006);
 
-        document.getElementById("ending").classList.add("active");
-    }, 2500);
+        for (let i = 0; i <= 360; i += 2) {
+            const angle = i * Math.PI / 180;
+            const distortion =
+                Math.sin(angle * 5 + animationTime * 1.2 + ring) * (8 + bass * 32) +
+                Math.sin(angle * 9 - animationTime * .7) * (4 + level * 20);
+
+            const radius = baseRadius + distortion;
+            const x = cx + Math.cos(angle + rotation) * radius;
+            const y = cy + Math.sin(angle + rotation) * radius * .8;
+
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+
+        ctx.closePath();
+
+        ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},${.12 + level * .18})`;
+        ctx.lineWidth = ring === 0 ? 1.5 : .7;
+        ctx.shadowBlur = 18 + bass * 35;
+        ctx.shadowColor = `rgb(${color[0]},${color[1]},${color[2]})`;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    }
 }
 
+function drawCore(phase, level, bass) {
+    const color = phase.color;
+    const pulse = Math.sin(animationTime * 1.1) * 5 + bass * 45;
+
+    const radius = 20 + pulse;
+
+    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 5);
+    glow.addColorStop(0, `rgba(${color[0]},${color[1]},${color[2]},${.3 + level * .2})`);
+    glow.addColorStop(.3, `rgba(${color[0]},${color[1]},${color[2]},.08)`);
+    glow.addColorStop(1, "rgba(0,0,0,0)");
+
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius * 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},.16)`;
+    ctx.shadowBlur = 45 + bass * 60;
+    ctx.shadowColor = `rgb(${color[0]},${color[1]},${color[2]})`;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+}
+
+function draw() {
+    requestAnimationFrame(draw);
+
+    if (!started || paused) return;
+
+    animationTime += .016;
+
+    const seconds = music.currentTime || 0;
+    const phase = getPhase(seconds);
+
+    const level = getAudioLevel();
+    const bass = getBass();
+    const treble = getTreble();
+
+    ctx.clearRect(0, 0, width, height);
+
+    // Subtle central atmospheric glow
+    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(width, height) * .65);
+    glow.addColorStop(0, `rgba(${phase.color.join(",")},${.035 + level * .06})`);
+    glow.addColorStop(1, "rgba(0,0,0,0)");
+
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, width, height);
+
+    drawCore(phase, level, bass);
+    drawWaves(phase, level, bass);
+    drawParticles(phase, level + treble * .3);
+
+    document.getElementById("phase").textContent = phase.name;
+
+    const current = Math.floor(music.currentTime);
+    const mins = Math.floor(current / 60);
+    const secs = current % 60;
+
+    document.getElementById("time").textContent =
+        `${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+
+    if (music.duration) {
+        document.getElementById("progressFill").style.width =
+            `${(music.currentTime / music.duration) * 100}%`;
+    }
+}
+
+function initializeAudio() {
+    if (audioContext) return;
+
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = .88;
+
+    source = audioContext.createMediaElementSource(music);
+    source.connect(analyser);
+    analyser.connect(audioContext.destination);
+
+    frequencyData = new Uint8Array(analyser.frequencyBinCount);
+}
+
+async function begin() {
+    if (started) return;
+
+    initializeAudio();
+
+    try {
+        await audioContext.resume();
+        await music.play();
+    } catch (error) {
+        console.error("Audio could not start:", error);
+        alert("The music couldn't start. Check that your MP3 is in the assets folder and try again.");
+        return;
+    }
+
+    started = true;
+    startTime = performance.now();
+
+    intro.style.opacity = "0";
+    setTimeout(() => intro.style.display = "none", 2000);
+
+    hud.classList.add("visible");
+
+    draw();
+}
+
+document.getElementById("startButton").addEventListener("click", begin);
+
+document.getElementById("pauseButton").addEventListener("click", async () => {
+    if (!started) return;
+
+    if (paused) {
+        await music.play();
+        paused = false;
+        document.getElementById("pauseButton").textContent = "Ⅱ";
+    } else {
+        music.pause();
+        paused = true;
+        document.getElementById("pauseButton").textContent = "▶";
+    }
+});
+
+document.getElementById("muteButton").addEventListener("click", () => {
+    muted = !muted;
+    music.muted = muted;
+    document.getElementById("muteButton").textContent = muted ? "×" : "♪";
+});
+
+document.getElementById("restartButton").addEventListener("click", async () => {
+    music.currentTime = 0;
+    if (paused) {
+        await music.play();
+        paused = false;
+        document.getElementById("pauseButton").textContent = "Ⅱ";
+    }
+});
+
+music.addEventListener("ended", () => {
+    paused = true;
+    document.getElementById("pauseButton").textContent = "▶";
+});
+
+drawStars();
 </script>
 
 </body>
