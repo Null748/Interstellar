@@ -137,6 +137,77 @@ html,body{
   color:#aaa0cb;
 }
 
+/* SPEED CONTROL */
+
+.speed-control{
+  position:absolute;
+  right:40px;
+  bottom:112px;
+  width:210px;
+  pointer-events:auto;
+}
+
+.speed-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+}
+
+.speed-label{
+  font-size:9px;
+  letter-spacing:.25em;
+  color:#c9bce9;
+}
+
+.speed-value{
+  font-size:12px;
+  letter-spacing:.1em;
+  color:white;
+  min-width:40px;
+  text-align:right;
+}
+
+.speed-slider{
+  appearance:none;
+  -webkit-appearance:none;
+  width:100%;
+  height:2px;
+  background:rgba(255,255,255,.3);
+  outline:none;
+  cursor:pointer;
+}
+
+.speed-slider::-webkit-slider-thumb{
+  appearance:none;
+  -webkit-appearance:none;
+  width:11px;
+  height:11px;
+  border-radius:50%;
+  background:white;
+  box-shadow:0 0 12px rgba(180,150,255,.8);
+  cursor:grab;
+}
+
+.speed-slider::-moz-range-thumb{
+  width:11px;
+  height:11px;
+  border:0;
+  border-radius:50%;
+  background:white;
+  box-shadow:0 0 12px rgba(180,150,255,.8);
+  cursor:grab;
+}
+
+.speed-marks{
+  display:flex;
+  justify-content:space-between;
+  margin-top:9px;
+  color:#817995;
+  font-size:8px;
+  letter-spacing:.08em;
+}
+
 .controls{
   position:absolute;
   right:40px;
@@ -183,7 +254,14 @@ html,body{
 @media(max-width:600px){
   .logo{left:18px;top:20px}
   .phase{right:18px;top:23px}
-  .track{left:18px;bottom:62px}
+  .track{left:18px;bottom:30px}
+
+  .speed-control{
+    right:18px;
+    bottom:112px;
+    width:175px;
+  }
+
   .controls{right:18px;bottom:20px}
   .time{right:18px;bottom:53px}
 }
@@ -208,6 +286,31 @@ html,body{
   <div class="track">
     <div class="track-name">MAIN THEME</div>
     <div class="track-sub">HANS ZIMMER</div>
+  </div>
+
+  <div class="speed-control">
+    <div class="speed-heading">
+      <span class="speed-label">FLIGHT SPEED</span>
+      <span class="speed-value" id="speedValue">1.0×</span>
+    </div>
+
+    <input
+      class="speed-slider"
+      id="speedSlider"
+      type="range"
+      min="0"
+      max="3"
+      step="0.1"
+      value="1"
+      aria-label="Flight speed"
+    >
+
+    <div class="speed-marks">
+      <span>STOP</span>
+      <span>1×</span>
+      <span>2×</span>
+      <span>3×</span>
+    </div>
   </div>
 
   <div class="time" id="time">00:00</div>
@@ -249,11 +352,13 @@ let travel=0;
 let travelSpeed=0;
 let targetSpeed=0;
 
+let speedMultiplier=1;
+
 let lastFrame=0;
 let raf=0;
 
 let renderer,scene,camera,particleMaterial;
-let particleCount=26000;
+const particleCount=26000;
 
 const vertexShader = `
 attribute float aSize;
@@ -273,28 +378,23 @@ void main(){
 
   float seed=aSeed;
 
-  // The particles gently drift through space.
   float drift=uTime*0.12+seed*6.28318;
 
   p.x+=sin(drift+p.z*0.035+seed*8.0)*0.7;
   p.y+=cos(drift*0.8+p.z*0.025+seed*5.0)*0.65;
 
-  // Constant forward flight.
-  // Particles move toward and past the camera, then reappear ahead.
   p.z=mod(position.z+uTravel+108.0,106.0)-108.0;
 
   vec4 mvPosition=modelViewMatrix*vec4(p,1.0);
 
   float depth=max(0.5,-mvPosition.z);
 
-  // Close particles appear larger.
   gl_PointSize=clamp(aSize*(240.0/depth),1.0,12.0);
 
   gl_Position=projectionMatrix*mvPosition;
 
   vColor=aColor*(0.88+uEnergy*0.18);
 
-  // Distant particles are dimmer.
   vAlpha=clamp(1.0-depth/125.0,0.12,0.95);
 }
 `;
@@ -335,7 +435,6 @@ function makeScene(){
     150
   );
 
-  // First-person viewpoint.
   camera.position.set(0,0,0);
   camera.rotation.set(0,0,0);
 
@@ -370,14 +469,11 @@ function makeScene(){
 
   for(let i=0;i<particleCount;i++){
 
-    // Wide, three-dimensional particle field.
     const angle=Math.random()*Math.PI*2;
     const radius=Math.sqrt(Math.random())*27;
 
     positions[i*3]=Math.cos(angle)*radius;
     positions[i*3+1]=Math.sin(angle)*radius;
-
-    // Every particle starts somewhere ahead of the camera.
     positions[i*3+2]=-2-Math.random()*106;
 
     sizes[i]=0.45+Math.random()*2.0;
@@ -461,7 +557,7 @@ function setupAudio(){
   freqData=new Uint8Array(analyser.frequencyBinCount);
 }
 
-function analyseAudio(dt){
+function analyseAudio(){
 
   if(!analyser||paused||music.ended)return;
 
@@ -481,46 +577,42 @@ function analyseAudio(dt){
     rawEnergy>energy?0.12:0.035
   );
 
-  // Music influences travelling speed, not particle size or position pulses.
-  // The movement remains continuous and smooth.
-  targetSpeed=lerp(7.5,17.0,clamp(energy*2.2,0,1));
+  // Music gently influences the base flight speed.
+  // The slider controls the overall speed multiplier.
+  targetSpeed=lerp(
+    7.5,
+    17.0,
+    clamp(energy*2.2,0,1)
+  )*speedMultiplier;
 }
 
 function updateFlight(dt){
 
   if(paused||music.ended){
-
-    // Slowly bring the flight to a complete stop.
     targetSpeed=0;
-
   }else{
-
-    analyseAudio(dt);
-
+    analyseAudio();
   }
 
-  // Smooth acceleration and deceleration.
   travelSpeed=lerp(
     travelSpeed,
     targetSpeed,
-    1-Math.exp(-dt*(paused?0.65:1.1))
+    1-Math.exp(-dt*(paused||speedMultiplier===0?2.5:1.1))
   );
 
-  // Accumulate forward movement.
   travel+=travelSpeed*dt;
-
-  // Keep the movement looping safely.
   travel=travel%106;
 
-  // Gentle steering through the particle field.
-  // No beat-synchronized camera movement.
   const t=performance.now()*0.0001;
 
-  camera.position.x=Math.sin(t)*0.35;
-  camera.position.y=Math.cos(t*0.8)*0.22;
+  // Stop camera drifting when the speed is set to zero.
+  const movementFactor=speedMultiplier===0?0:1;
 
-  camera.rotation.x=Math.sin(t*0.7)*0.003;
-  camera.rotation.y=Math.sin(t)*0.006;
+  camera.position.x=Math.sin(t)*0.35*movementFactor;
+  camera.position.y=Math.cos(t*0.8)*0.22*movementFactor;
+
+  camera.rotation.x=Math.sin(t*0.7)*0.003*movementFactor;
+  camera.rotation.y=Math.sin(t)*0.006*movementFactor;
 
   particleMaterial.uniforms.uTravel.value=travel;
   particleMaterial.uniforms.uTime.value=performance.now()*0.001;
@@ -596,6 +688,22 @@ async function begin(){
 }
 
 $("startButton").addEventListener("click",begin);
+
+// SPEED SLIDER
+
+$("speedSlider").addEventListener("input",event=>{
+
+  speedMultiplier=parseFloat(event.target.value);
+
+  $("speedValue").textContent=
+    speedMultiplier.toFixed(1)+"×";
+
+  if(speedMultiplier===0){
+    targetSpeed=0;
+  }else if(!paused&&!music.ended){
+    targetSpeed*=speedMultiplier;
+  }
+});
 
 $("pauseButton").addEventListener("click",async()=>{
 
