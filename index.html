@@ -1,47 +1,197 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>INTERSTELLAR — 3D Audio Visualizer</title>
+<title>INTERSTELLAR — Particle Flight</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.152.2/three.min.js"
-        onerror="this.onerror=null;this.src='https://unpkg.com/three@0.152.2/build/three.min.js'"></script>
+onerror="this.onerror=null;this.src='https://unpkg.com/three@0.152.2/build/three.min.js'"></script>
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;overflow:hidden;background:#020108;color:white;font-family:Montserrat,sans-serif}
-#visualizer{position:fixed;inset:0;z-index:1}
-.vignette{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 25%,rgba(0,0,0,.48) 100%)}
-.intro{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#020108;transition:opacity 1.2s}
-.intro h1{font-size:clamp(32px,7vw,76px);font-weight:200;letter-spacing:.42em;padding-left:.42em;opacity:0;animation:reveal 2.5s ease forwards}
-.intro p{margin-top:22px;color:#c1a9f5;font-size:10px;letter-spacing:.45em;opacity:0;animation:reveal 2s ease .7s forwards}
-.start{margin-top:55px;padding:15px 32px;border:1px solid rgba(255,255,255,.55);background:transparent;color:white;font:10px Montserrat,sans-serif;letter-spacing:.3em;cursor:pointer;opacity:0;animation:reveal 2s ease 1.4s forwards;transition:.25s}
-.start:hover{background:white;color:#080510}
-@keyframes reveal{to{opacity:1}}
-.hud{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:0;transition:opacity .8s}
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#020108;
+  color:white;
+  font-family:Montserrat,sans-serif;
+}
+
+#visualizer{
+  position:fixed;
+  inset:0;
+  z-index:1;
+}
+
+.vignette{
+  position:fixed;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 25%,rgba(0,0,0,.4) 100%);
+}
+
+.intro{
+  position:fixed;
+  inset:0;
+  z-index:5;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:#020108;
+  transition:opacity 1.2s;
+}
+
+.intro h1{
+  font-size:clamp(32px,7vw,76px);
+  font-weight:200;
+  letter-spacing:.42em;
+  padding-left:.42em;
+  opacity:0;
+  animation:reveal 2.5s ease forwards;
+}
+
+.intro p{
+  margin-top:22px;
+  color:#c1a9f5;
+  font-size:10px;
+  letter-spacing:.45em;
+  opacity:0;
+  animation:reveal 2s ease .7s forwards;
+}
+
+.start{
+  margin-top:55px;
+  padding:15px 32px;
+  border:1px solid rgba(255,255,255,.55);
+  background:transparent;
+  color:white;
+  font:10px Montserrat,sans-serif;
+  letter-spacing:.3em;
+  cursor:pointer;
+  opacity:0;
+  animation:reveal 2s ease 1.4s forwards;
+  transition:.25s;
+}
+
+.start:hover{
+  background:white;
+  color:#080510;
+}
+
+@keyframes reveal{
+  to{opacity:1}
+}
+
+.hud{
+  position:fixed;
+  inset:0;
+  z-index:3;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .8s;
+}
+
 .hud.visible{opacity:1}
-.logo{position:absolute;top:34px;left:40px;font-size:11px;letter-spacing:.4em}
-.phase{position:absolute;top:37px;right:40px;font-size:9px;letter-spacing:.25em;color:#d8caff}
-.track{position:absolute;left:40px;bottom:40px}
-.track-name{font-size:11px;letter-spacing:.25em;margin-bottom:8px}
-.track-sub{font-size:9px;letter-spacing:.2em;color:#aaa0cb}
-.controls{position:absolute;right:40px;bottom:35px;display:flex;gap:18px;pointer-events:auto}
-.controls button{border:0;background:transparent;color:white;font-size:20px;cursor:pointer}
+
+.logo{
+  position:absolute;
+  top:34px;
+  left:40px;
+  font-size:11px;
+  letter-spacing:.4em;
+}
+
+.phase{
+  position:absolute;
+  top:37px;
+  right:40px;
+  font-size:9px;
+  letter-spacing:.25em;
+  color:#d8caff;
+}
+
+.track{
+  position:absolute;
+  left:40px;
+  bottom:40px;
+}
+
+.track-name{
+  font-size:11px;
+  letter-spacing:.25em;
+  margin-bottom:8px;
+}
+
+.track-sub{
+  font-size:9px;
+  letter-spacing:.2em;
+  color:#aaa0cb;
+}
+
+.controls{
+  position:absolute;
+  right:40px;
+  bottom:35px;
+  display:flex;
+  gap:18px;
+  pointer-events:auto;
+}
+
+.controls button{
+  border:0;
+  background:transparent;
+  color:white;
+  font-size:20px;
+  cursor:pointer;
+}
+
 .controls button:hover{color:#ff8cff}
-.time{position:absolute;right:40px;bottom:70px;color:#c4b6e8;font-size:9px;letter-spacing:.15em}
-.progress{position:absolute;bottom:0;left:0;width:100%;height:2px;background:rgba(255,255,255,.15)}
-.progress-fill{height:100%;width:0;background:white}
+
+.time{
+  position:absolute;
+  right:40px;
+  bottom:70px;
+  color:#c4b6e8;
+  font-size:9px;
+  letter-spacing:.15em;
+}
+
+.progress{
+  position:absolute;
+  bottom:0;
+  left:0;
+  width:100%;
+  height:2px;
+  background:rgba(255,255,255,.15);
+}
+
+.progress-fill{
+  height:100%;
+  width:0;
+  background:white;
+}
+
 @media(max-width:600px){
- .logo{left:18px;top:20px}.phase{right:18px;top:23px}
- .track{left:18px;bottom:62px}.controls{right:18px;bottom:20px}.time{right:18px;bottom:53px}
+  .logo{left:18px;top:20px}
+  .phase{right:18px;top:23px}
+  .track{left:18px;bottom:62px}
+  .controls{right:18px;bottom:20px}
+  .time{right:18px;bottom:53px}
 }
 </style>
 </head>
 
 <body>
+
 <div id="visualizer"></div>
 <div class="vignette"></div>
 
@@ -53,18 +203,24 @@ html,body{width:100%;height:100%;overflow:hidden;background:#020108;color:white;
 
 <div class="hud" id="hud">
   <div class="logo">INTERSTELLAR</div>
-  <div class="phase">LIVE 3D AUDIO REACTIVE</div>
+  <div class="phase">INFINITE PARTICLE FLIGHT</div>
+
   <div class="track">
     <div class="track-name">MAIN THEME</div>
     <div class="track-sub">HANS ZIMMER</div>
   </div>
+
   <div class="time" id="time">00:00</div>
+
   <div class="controls">
     <button id="pauseButton" title="Pause / Play">Ⅱ</button>
     <button id="restartButton" title="Restart">↺</button>
     <button id="muteButton" title="Mute">♪</button>
   </div>
-  <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="progress">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
 </div>
 
 <audio id="music" preload="auto">
@@ -78,361 +234,452 @@ html,body{width:100%;height:100%;overflow:hidden;background:#020108;color:white;
 const $ = id => document.getElementById(id);
 const music = $("music");
 const mount = $("visualizer");
+
 const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
 const lerp = (a,b,t) => a+(b-a)*t;
 
-let audioContext, analyser, audioSource, freqData, previousSpectrum;
-let started=false, paused=false, muted=false;
-let energy=0, bass=0, mid=0, treble=0, beatPulse=0, notePulse=0;
-let bassHistory=[], fluxHistory=[];
-let raf=0, lastFrame=0, elapsed=0;
-let renderer, scene, camera, particleMaterial, particleCloud;
-let particleCount=22000;
+let audioContext, analyser, audioSource, freqData;
+
+let started=false;
+let paused=false;
+let muted=false;
+
+let energy=0;
+let travel=0;
+let travelSpeed=0;
+let targetSpeed=0;
+
+let lastFrame=0;
+let raf=0;
+
+let renderer,scene,camera,particleMaterial;
+let particleCount=26000;
 
 const vertexShader = `
 attribute float aSize;
 attribute float aSeed;
 attribute vec3 aColor;
+
+uniform float uTravel;
 uniform float uTime;
-uniform float uBass;
-uniform float uMid;
-uniform float uTreble;
-uniform float uBeat;
-uniform float uNote;
 uniform float uEnergy;
+
 varying vec3 vColor;
 varying float vAlpha;
 
 void main(){
-  vec3 p = position;
-  float t = uTime;
-  float seed = aSeed;
 
-  // A deep, flowing particle current with multiple independent wave layers.
-  float angle = atan(p.y,p.x);
-  float radius = length(p.xy);
-  float flow = t*(0.12 + seed*0.12) + seed*6.28318;
+  vec3 p=position;
 
-  p.x += sin(flow + p.z*0.17 + angle*1.8) * (0.18 + uMid*0.65);
-  p.y += cos(flow*0.83 + p.z*0.14 - angle) * (0.18 + uTreble*0.5);
+  float seed=aSeed;
 
-  // Bass expands the whole field; note attacks create sharp traveling ripples.
-  float wave = sin(radius*1.65 - t*2.2 + seed*8.0);
-  float ripple = sin(radius*2.8 - t*4.5 + seed*5.0);
-  float push = uBeat*(0.25 + seed*0.7) + uNote*(0.12 + ripple*0.2);
-  p.xy *= 1.0 + wave*(0.018 + uEnergy*0.055) + push*0.16;
+  // The particles gently drift through space.
+  float drift=uTime*0.12+seed*6.28318;
 
-  // Particles stream through depth, then wrap around the scene.
-  p.z += sin(flow + radius*0.25)*0.25;
-  p.z = mod(p.z + 42.0 + t*(0.45 + seed*0.55) + uBass*2.0, 84.0)-42.0;
+  p.x+=sin(drift+p.z*0.035+seed*8.0)*0.7;
+  p.y+=cos(drift*0.8+p.z*0.025+seed*5.0)*0.65;
 
-  vec4 mvPosition = modelViewMatrix * vec4(p,1.0);
-  float perspective = 230.0 / max(1.0,-mvPosition.z);
-  float pulseSize = 1.0 + uBeat*1.9 + uNote*0.9 + uEnergy*0.65;
-  gl_PointSize = clamp(aSize * perspective * pulseSize, 1.0, 9.0);
-  gl_Position = projectionMatrix * mvPosition;
+  // Constant forward flight.
+  // Particles move toward and past the camera, then reappear ahead.
+  p.z=mod(position.z+uTravel+108.0,106.0)-108.0;
 
-  float hueShift = sin(t*0.12 + seed*10.0 + uMid*2.0);
-  vColor = aColor * (0.78 + 0.32*hueShift);
-  vColor += vec3(0.25,0.08,0.38)*uNote*0.55;
-  vColor += vec3(0.05,0.3,0.55)*uBeat*0.65;
-  vAlpha = 0.48 + uEnergy*0.45 + uBeat*0.22 + uNote*0.15;
-}`;
+  vec4 mvPosition=modelViewMatrix*vec4(p,1.0);
+
+  float depth=max(0.5,-mvPosition.z);
+
+  // Close particles appear larger.
+  gl_PointSize=clamp(aSize*(240.0/depth),1.0,12.0);
+
+  gl_Position=projectionMatrix*mvPosition;
+
+  vColor=aColor*(0.88+uEnergy*0.18);
+
+  // Distant particles are dimmer.
+  vAlpha=clamp(1.0-depth/125.0,0.12,0.95);
+}
+`;
 
 const fragmentShader = `
 varying vec3 vColor;
 varying float vAlpha;
+
 void main(){
-  vec2 uv = gl_PointCoord - 0.5;
-  float d = length(uv);
-  if(d > 0.5) discard;
-  float core = smoothstep(0.22,0.0,d);
-  float glow = exp(-d*10.0)*0.7;
-  float alpha = (core + glow) * vAlpha;
-  gl_FragColor = vec4(vColor*(1.0 + core*1.35),alpha);
-}`;
+
+  vec2 uv=gl_PointCoord-0.5;
+  float d=length(uv);
+
+  if(d>0.5) discard;
+
+  float core=1.0-smoothstep(0.0,0.18,d);
+  float glow=exp(-d*9.0)*0.65;
+
+  float alpha=(core+glow)*vAlpha;
+
+  gl_FragColor=vec4(vColor*(1.0+core*0.7),alpha);
+}
+`;
 
 function makeScene(){
-  if(!window.THREE) throw new Error("Three.js did not load. Check your internet connection and reload.");
 
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x020108);
+  if(!window.THREE){
+    throw new Error("Three.js did not load. Check your internet connection and reload.");
+  }
 
-  camera = new THREE.PerspectiveCamera(62,window.innerWidth/window.innerHeight,0.1,150);
-  camera.position.set(0,0,13);
+  scene=new THREE.Scene();
+  scene.background=new THREE.Color(0x020108);
 
-  renderer = new THREE.WebGLRenderer({
+  camera=new THREE.PerspectiveCamera(
+    70,
+    window.innerWidth/window.innerHeight,
+    0.1,
+    150
+  );
+
+  // First-person viewpoint.
+  camera.position.set(0,0,0);
+  camera.rotation.set(0,0,0);
+
+  renderer=new THREE.WebGLRenderer({
     antialias:false,
     alpha:false,
     powerPreference:"high-performance",
     stencil:false,
     depth:true
   });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1,1.25));
+
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.25));
   renderer.setSize(window.innerWidth,window.innerHeight);
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+
   mount.appendChild(renderer.domElement);
 
-  const positions = new Float32Array(particleCount*3);
-  const sizes = new Float32Array(particleCount);
-  const seeds = new Float32Array(particleCount);
-  const colors = new Float32Array(particleCount*3);
+  const positions=new Float32Array(particleCount*3);
+  const sizes=new Float32Array(particleCount);
+  const seeds=new Float32Array(particleCount);
+  const colors=new Float32Array(particleCount*3);
 
-  const palette = [
-    [0.12,0.78,1.0],
-    [0.48,0.25,1.0],
-    [1.0,0.20,0.68],
-    [0.40,0.88,1.0],
-    [0.86,0.55,1.0],
-    [1.0,0.48,0.32]
+  const palette=[
+    [0.10,0.75,1.0],
+    [0.35,0.25,1.0],
+    [0.85,0.25,1.0],
+    [1.0,0.35,0.72],
+    [0.45,0.9,1.0],
+    [1.0,0.65,0.4],
+    [0.75,0.65,1.0]
   ];
 
   for(let i=0;i<particleCount;i++){
-    // A wide, deep cylindrical volume creates the feeling of flying through stars.
+
+    // Wide, three-dimensional particle field.
     const angle=Math.random()*Math.PI*2;
-    const radius=1.2+Math.pow(Math.random(),0.72)*19;
+    const radius=Math.sqrt(Math.random())*27;
+
     positions[i*3]=Math.cos(angle)*radius;
     positions[i*3+1]=Math.sin(angle)*radius;
-    positions[i*3+2]=(Math.random()-.5)*84;
 
-    sizes[i]=0.55+Math.random()*1.75;
+    // Every particle starts somewhere ahead of the camera.
+    positions[i*3+2]=-2-Math.random()*106;
+
+    sizes[i]=0.45+Math.random()*2.0;
     seeds[i]=Math.random();
 
     const c=palette[Math.floor(Math.random()*palette.length)];
-    const brightness=0.65+Math.random()*0.65;
+    const brightness=0.55+Math.random()*0.85;
+
     colors[i*3]=c[0]*brightness;
     colors[i*3+1]=c[1]*brightness;
     colors[i*3+2]=c[2]*brightness;
   }
 
   const geometry=new THREE.BufferGeometry();
-  geometry.setAttribute("position",new THREE.BufferAttribute(positions,3));
-  geometry.setAttribute("aSize",new THREE.BufferAttribute(sizes,1));
-  geometry.setAttribute("aSeed",new THREE.BufferAttribute(seeds,1));
-  geometry.setAttribute("aColor",new THREE.BufferAttribute(colors,3));
+
+  geometry.setAttribute(
+    "position",
+    new THREE.BufferAttribute(positions,3)
+  );
+
+  geometry.setAttribute(
+    "aSize",
+    new THREE.BufferAttribute(sizes,1)
+  );
+
+  geometry.setAttribute(
+    "aSeed",
+    new THREE.BufferAttribute(seeds,1)
+  );
+
+  geometry.setAttribute(
+    "aColor",
+    new THREE.BufferAttribute(colors,3)
+  );
 
   particleMaterial=new THREE.ShaderMaterial({
+
     uniforms:{
+      uTravel:{value:0},
       uTime:{value:0},
-      uBass:{value:0},
-      uMid:{value:0},
-      uTreble:{value:0},
-      uBeat:{value:0},
-      uNote:{value:0},
       uEnergy:{value:0}
     },
+
     vertexShader,
     fragmentShader,
+
     transparent:true,
     depthWrite:false,
     blending:THREE.AdditiveBlending
   });
 
-  particleCloud=new THREE.Points(geometry,particleMaterial);
-  scene.add(particleCloud);
+  const particles=new THREE.Points(
+    geometry,
+    particleMaterial
+  );
+
+  scene.add(particles);
 }
 
 function setupAudio(){
-  if(audioContext) return;
-  const AudioCtx=window.AudioContext || window.webkitAudioContext;
-  if(!AudioCtx) throw new Error("Your browser does not support the Web Audio API.");
+
+  if(audioContext)return;
+
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+
+  if(!AudioCtx){
+    throw new Error("Your browser does not support the Web Audio API.");
+  }
+
   audioContext=new AudioCtx();
+
   analyser=audioContext.createAnalyser();
   analyser.fftSize=2048;
-  analyser.smoothingTimeConstant=0.68;
+  analyser.smoothingTimeConstant=0.82;
+
   audioSource=audioContext.createMediaElementSource(music);
+
   audioSource.connect(analyser);
   analyser.connect(audioContext.destination);
-  freqData=new Uint8Array(analyser.frequencyBinCount);
-  previousSpectrum=new Float32Array(analyser.frequencyBinCount);
-}
 
-function averageBand(from,to){
-  let sum=0, count=0;
-  for(let i=from;i<Math.min(to,freqData.length);i++){
-    sum+=freqData[i]/255;
-    count++;
-  }
-  return count ? sum/count : 0;
+  freqData=new Uint8Array(analyser.frequencyBinCount);
 }
 
 function analyseAudio(dt){
-  if(!analyser || paused || music.ended) return;
+
+  if(!analyser||paused||music.ended)return;
+
   analyser.getByteFrequencyData(freqData);
 
-  const rawBass=averageBand(2,24);
-  const rawMid=averageBand(24,150);
-  const rawTreble=averageBand(150,500);
-  const rawEnergy=averageBand(1,500);
+  let sum=0;
 
-  bass=lerp(bass,rawBass,rawBass>bass?0.78:0.22);
-  mid=lerp(mid,rawMid,0.34);
-  treble=lerp(treble,rawTreble,0.34);
-  energy=lerp(energy,rawEnergy,0.32);
-
-  let bassMean=0;
-  for(let i=0;i<bassHistory.length;i++) bassMean+=bassHistory[i];
-  bassMean=bassHistory.length ? bassMean/bassHistory.length : 0;
-  const bassRise=rawBass-bassMean;
-  bassHistory.push(rawBass);
-  if(bassHistory.length>24) bassHistory.shift();
-
-  if(bassRise>0.028 && rawBass>0.055){
-    beatPulse=Math.max(beatPulse,clamp(0.42+bassRise*7.5,0.42,1));
+  for(let i=2;i<400;i++){
+    sum+=freqData[i]/255;
   }
 
-  let flux=0;
-  for(let i=2;i<Math.min(320,freqData.length);i++){
-    const value=freqData[i]/255;
-    const rise=value-previousSpectrum[i];
-    if(rise>0) flux+=rise;
-    previousSpectrum[i]=value;
-  }
-  flux/=318;
+  const rawEnergy=sum/398;
 
-  let fluxMean=0;
-  for(let i=0;i<fluxHistory.length;i++) fluxMean+=fluxHistory[i];
-  fluxMean=fluxHistory.length ? fluxMean/fluxHistory.length : 0;
-  fluxHistory.push(flux);
-  if(fluxHistory.length>28) fluxHistory.shift();
+  energy=lerp(
+    energy,
+    rawEnergy,
+    rawEnergy>energy?0.12:0.035
+  );
 
-  if(flux>Math.max(0.0045,fluxMean*1.55)){
-    notePulse=Math.max(notePulse,clamp(flux*23,0.22,1));
-  }
-
-  beatPulse*=Math.exp(-dt*5.0);
-  notePulse*=Math.exp(-dt*3.2);
+  // Music influences travelling speed, not particle size or position pulses.
+  // The movement remains continuous and smooth.
+  targetSpeed=lerp(7.5,17.0,clamp(energy*2.2,0,1));
 }
 
-function decayAudio(dt){
-  const decay=Math.exp(-dt*1.15);
-  energy*=decay;
-  bass*=decay;
-  mid*=decay;
-  treble*=decay;
-  beatPulse*=Math.exp(-dt*1.6);
-  notePulse*=Math.exp(-dt*1.35);
-}
+function updateFlight(dt){
 
-function updateVisuals(){
-  const u=particleMaterial.uniforms;
-  u.uTime.value=elapsed;
-  u.uBass.value=bass;
-  u.uMid.value=mid;
-  u.uTreble.value=treble;
-  u.uBeat.value=beatPulse;
-  u.uNote.value=notePulse;
-  u.uEnergy.value=energy;
+  if(paused||music.ended){
 
-  // Gentle camera drift; sharp impacts briefly push the viewpoint back.
-  camera.position.x=Math.sin(elapsed*0.10)*(0.12+energy*0.22);
-  camera.position.y=Math.cos(elapsed*0.13)*(0.10+energy*0.18);
-  camera.position.z=13-beatPulse*0.42-notePulse*0.16;
-  camera.lookAt(0,0,0);
+    // Slowly bring the flight to a complete stop.
+    targetSpeed=0;
+
+  }else{
+
+    analyseAudio(dt);
+
+  }
+
+  // Smooth acceleration and deceleration.
+  travelSpeed=lerp(
+    travelSpeed,
+    targetSpeed,
+    1-Math.exp(-dt*(paused?0.65:1.1))
+  );
+
+  // Accumulate forward movement.
+  travel+=travelSpeed*dt;
+
+  // Keep the movement looping safely.
+  travel=travel%106;
+
+  // Gentle steering through the particle field.
+  // No beat-synchronized camera movement.
+  const t=performance.now()*0.0001;
+
+  camera.position.x=Math.sin(t)*0.35;
+  camera.position.y=Math.cos(t*0.8)*0.22;
+
+  camera.rotation.x=Math.sin(t*0.7)*0.003;
+  camera.rotation.y=Math.sin(t)*0.006;
+
+  particleMaterial.uniforms.uTravel.value=travel;
+  particleMaterial.uniforms.uTime.value=performance.now()*0.001;
+  particleMaterial.uniforms.uEnergy.value=energy;
 }
 
 function render(timestamp){
-  if(!started) return;
+
+  if(!started)return;
+
   raf=requestAnimationFrame(render);
 
-  const dt=lastFrame ? Math.min((timestamp-lastFrame)/1000,0.05) : 1/60;
+  const dt=lastFrame
+    ?Math.min((timestamp-lastFrame)/1000,0.05)
+    :1/60;
+
   lastFrame=timestamp;
-  elapsed+=dt;
 
-  if(!paused && !music.ended) analyseAudio(dt);
-  else decayAudio(dt);
+  updateFlight(dt);
 
-  updateVisuals();
   renderer.render(scene,camera);
 
   const t=music.currentTime||0;
+
   $("time").textContent=
     `${String(Math.floor(t/60)).padStart(2,"0")}:`+
     `${String(Math.floor(t%60)).padStart(2,"0")}`;
 
-  if(music.duration && Number.isFinite(music.duration)){
-    $("progressFill").style.width=`${t/music.duration*100}%`;
+  if(music.duration&&Number.isFinite(music.duration)){
+    $("progressFill").style.width=
+      `${t/music.duration*100}%`;
   }
 }
 
 async function begin(){
-  if(started) return;
+
+  if(started)return;
+
   try{
-    if(!renderer) makeScene();
+
+    if(!renderer)makeScene();
+
     setupAudio();
+
     await audioContext.resume();
     await music.play();
 
     started=true;
     paused=false;
+
     $("intro").style.opacity="0";
-    window.setTimeout(()=>$("intro").style.display="none",1200);
+
+    window.setTimeout(()=>{
+      $("intro").style.display="none";
+    },1200);
+
     $("hud").classList.add("visible");
+
     lastFrame=0;
+
     cancelAnimationFrame(raf);
     raf=requestAnimationFrame(render);
+
   }catch(error){
+
     console.error(error);
-    alert(error.message || "Could not start the experience. Check that the MP3 is still inside the assets folder.");
+
+    alert(
+      error.message||
+      "Could not start the experience. Check that the MP3 is still inside your assets folder."
+    );
   }
 }
 
 $("startButton").addEventListener("click",begin);
 
 $("pauseButton").addEventListener("click",async()=>{
-  if(!started) return;
+
+  if(!started)return;
+
   if(!paused){
+
     music.pause();
     paused=true;
+
     $("pauseButton").textContent="▶";
+
   }else{
+
     try{
+
       await audioContext.resume();
       await music.play();
+
       paused=false;
+
       $("pauseButton").textContent="Ⅱ";
-    }catch(error){console.error(error);}
+
+    }catch(error){
+      console.error(error);
+    }
   }
 });
 
 $("restartButton").addEventListener("click",async()=>{
-  if(!started) return;
+
+  if(!started)return;
+
   music.currentTime=0;
-  bassHistory.length=0;
-  fluxHistory.length=0;
-  previousSpectrum.fill(0);
-  beatPulse=0;
-  notePulse=0;
+
   if(paused){
+
     try{
+
       await audioContext.resume();
       await music.play();
+
       paused=false;
+
       $("pauseButton").textContent="Ⅱ";
-    }catch(error){console.error(error);}
+
+    }catch(error){
+      console.error(error);
+    }
   }
 });
 
 $("muteButton").addEventListener("click",()=>{
+
   muted=!muted;
+
   music.muted=muted;
+
   $("muteButton").textContent=muted?"×":"♪";
 });
 
 window.addEventListener("resize",()=>{
-  if(!camera || !renderer) return;
+
+  if(!camera||!renderer)return;
+
   camera.aspect=window.innerWidth/window.innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1,1.25));
+
+  renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio||1,1.25)
+  );
+
   renderer.setSize(window.innerWidth,window.innerHeight);
 });
 
 music.addEventListener("ended",()=>{
+
   paused=true;
+
   $("pauseButton").textContent="▶";
 });
 
 })();
 </script>
+
 </body>
 </html>
